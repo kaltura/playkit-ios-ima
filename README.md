@@ -23,7 +23,7 @@ community@kaltura.com
 
 ## Requirements
 
-* XCode7 or newer
+* XCode8 or newer
 * iOS 9.0+
 * CocoaPods
 
