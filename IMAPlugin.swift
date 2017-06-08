@@ -4,11 +4,13 @@
 //                          | ' </ _` | |  _| || | '_/ _` |
 //                          |_|\_\__,_|_|\__|\_,_|_| \__,_|
 //
-// This file is part of the Kaltura Collaborative Media Suite which allows users
-// to do with audio, video, and animation what Wiki platfroms allow them to do with
-// text.
+// Copyright (C) 2017 Kaltura Inc.
 //
-// Copyright (C) 2016  Kaltura Inc.
+// Licensed under the AGPLv3 license,
+// unless a different license for a particular library is specified in the applicable library path.
+//
+// You may obtain a copy of the License at
+// http://www.gnu.org/licenses/agpl-3.0.html
 // ===================================================================================================
 
 import GoogleInteractiveMediaAds
