@@ -1,7 +1,7 @@
 // ===================================================================================================
 // Copyright (C) 2017 Kaltura Inc.
 //
-// Licensed under the AGPLv3 license, 
+// Licensed under the AGPLv3 license,
 // unless a different license for a particular library is specified in the applicable library path.
 //
 // You may obtain a copy of the License at
@@ -59,7 +59,7 @@ class AdsEnabledPlayerController : PlayerDecoratorBase, AdsPluginDelegate, AdsPl
         self.adsPlugin.delegate = self
         self.adsPlugin.dataSource = self
     }
-    
+
     override var isPlaying: Bool {
         get {
             if self.adsPlugin.isAdPlaying {
@@ -68,7 +68,7 @@ class AdsEnabledPlayerController : PlayerDecoratorBase, AdsPluginDelegate, AdsPl
             return super.isPlaying
         }
     }
-    
+
     override func prepare(_ config: MediaConfig) {
         self.stop()
         self.stateMachine.set(state: .waitingForPrepare)
@@ -117,12 +117,12 @@ class AdsEnabledPlayerController : PlayerDecoratorBase, AdsPluginDelegate, AdsPl
     /************************************************************/
     // MARK: - AdsPluginDataSource
     /************************************************************/
-    
+        
     func adsPluginShouldPlayAd(_ adsPlugin: AdsPlugin) -> Bool {
         return self.delegate!.playerShouldPlayAd(self)
     }
     
-    var adsPluginStartTime: TimeInterval {
+    var playAdsAfterTime: TimeInterval {
         return self.prepareMediaConfig?.startTime ?? 0
     }
     
