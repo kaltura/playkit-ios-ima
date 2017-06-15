@@ -15,7 +15,7 @@ import PlayKit
 protocol AdsPluginDataSource : class {
     func adsPluginShouldPlayAd(_ adsPlugin: AdsPlugin) -> Bool
     /// the player's media config start time.
-    var adsPluginStartTime: TimeInterval { get }
+    var playAdsAfterTime: TimeInterval { get }
 }
 
 protocol AdsPluginDelegate : class {
