@@ -119,7 +119,7 @@ class AdsEnabledPlayerController : PlayerDecoratorBase, AdsPluginDelegate, AdsPl
     /************************************************************/
         
     func adsPluginShouldPlayAd(_ adsPlugin: AdsPlugin) -> Bool {
-        return self.delegate!.playerShouldPlayAd(self)
+        return self.delegate?.playerShouldPlayAd(self) ?? false
     }
     
     var playAdsAfterTime: TimeInterval {
