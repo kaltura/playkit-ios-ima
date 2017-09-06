@@ -69,7 +69,7 @@ class AdsEnabledPlayerController : PlayerDecoratorBase, AdsPluginDelegate, AdsPl
         }
     }
 
-    override func prepare(_ config: MediaConfig) {
+    override func prepare(_ config: MediaConfig) throws {
         self.stop()
         self.stateMachine.set(state: .waitingForPrepare)
         self.prepareMediaConfig = config
@@ -103,12 +103,6 @@ class AdsEnabledPlayerController : PlayerDecoratorBase, AdsPluginDelegate, AdsPl
         self.shouldPreventContentResume = false
     }
     
-    @available(iOS 9.0, *)
-    override func createPiPController(with delegate: AVPictureInPictureControllerDelegate) -> AVPictureInPictureController? {
-        self.adsPlugin.pipDelegate = delegate
-        return super.createPiPController(with: self.adsPlugin)
-    }
-    
     override func destroy() {
         AppStateSubject.shared.remove(observer: self)
         super.destroy()
@@ -132,14 +126,14 @@ class AdsEnabledPlayerController : PlayerDecoratorBase, AdsPluginDelegate, AdsPl
     
     func adsPlugin(_ adsPlugin: AdsPlugin, loaderFailedWith error: String) {
         if self.isPlayEnabled {
-            self.preparePlayerIfNeeded()
+            self.tryPreparePlayerIfNeeded()
             super.play()
             self.adsPlugin.didPlay()
         }
     }
     
     func adsPlugin(_ adsPlugin: AdsPlugin, managerFailedWith error: String) {
-        self.preparePlayerIfNeeded()
+        self.tryPreparePlayerIfNeeded()
         super.play()
         self.adsPlugin.didPlay()
     }
@@ -150,14 +144,14 @@ class AdsEnabledPlayerController : PlayerDecoratorBase, AdsPluginDelegate, AdsPl
             super.pause()
         case let e where type(of: e) == AdEvent.adDidRequestContentResume:
             if !self.shouldPreventContentResume {
-                self.preparePlayerIfNeeded()
+                self.tryPreparePlayerIfNeeded()
                 super.resume()
             }
         case let e where type(of: e) == AdEvent.adResumed: self.isPlayEnabled = true
         case let e where type(of: e) == AdEvent.adStarted:
             // when starting to play pre roll start preparing the player.
             if event.adInfo?.positionType == .preRoll {
-                self.preparePlayerIfNeeded()
+                self.tryPreparePlayerIfNeeded()
             }
         case let e where type(of: e) == AdEvent.adLoaded || type(of: e) == AdEvent.adBreakReady:
             if self.shouldPreventContentResume == true { return } // no need to handle twice if already true
@@ -171,13 +165,13 @@ class AdsEnabledPlayerController : PlayerDecoratorBase, AdsPluginDelegate, AdsPl
     
     func adsRequestTimedOut(shouldPlay: Bool) {
         if shouldPlay {
-            self.preparePlayerIfNeeded()
+            self.tryPreparePlayerIfNeeded()
             self.play()
         }
     }
     
     func play(_ playType: PlayType) {
-        self.preparePlayerIfNeeded()
+        self.tryPreparePlayerIfNeeded()
         playType == .play ? super.play() : super.resume()
         self.adsPlugin.didPlay()
     }
@@ -186,13 +180,23 @@ class AdsEnabledPlayerController : PlayerDecoratorBase, AdsPluginDelegate, AdsPl
     // MARK: - Private
     /************************************************************/
     
+    private func tryPreparePlayerIfNeeded() {
+        do {
+            // prepare the player
+            try self.preparePlayerIfNeeded()
+        } catch let e {
+            // error loading the player
+            print("error:", e.localizedDescription)
+        }
+    }
+    
     /// prepare the player only if wasn't prepared yet.
-    private func preparePlayerIfNeeded() {
+    private func preparePlayerIfNeeded() throws {
         self.prepareSemaphore.wait() // use semaphore to make sure will not be called from more than one thread by mistake.
         if self.stateMachine.getState() == .waitingForPrepare {
             self.stateMachine.set(state: .preparing)
             PKLog.debug("will prepare player")
-            super.prepare(self.prepareMediaConfig)
+            try super.prepare(self.prepareMediaConfig)
             self.stateMachine.set(state: .prepared)
         }
         self.prepareSemaphore.signal()
