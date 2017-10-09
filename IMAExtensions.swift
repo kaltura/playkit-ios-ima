@@ -22,20 +22,27 @@ extension IMAAdsManager {
 extension PKAdInfo {
     convenience init(ad: IMAAd) {
         self.init(
-            adDescription: ad.adDescription,
-            adDuration: ad.duration,
+            description: ad.adDescription,
+            duration: ad.duration,
             title: ad.adTitle,
-            isSkippable: ad.isSkippable,
-            contentType: ad.contentType,
+            skipOffset: ad.isSkippable ? -1 : nil,
             adId: ad.adId,
             adSystem: ad.adSystem,
-            height: Int(ad.height),
-            width: Int(ad.width),
             totalAds: Int(ad.adPodInfo.totalAds),
-            adPosition: Int(ad.adPodInfo.adPosition),
+            position: Int(ad.adPodInfo.adPosition),
+            timeOffset: ad.adPodInfo.timeOffset
+        )
+    }
+}
+
+extension PKAdBreakInfo {
+    convenience init(ad: IMAAd, totalAdBreaks: Int) {
+        self.init(
+            id: "",
+            position: Int(ad.adPodInfo.podIndex),
+            totalAdBreaks: totalAdBreaks,
             timeOffset: ad.adPodInfo.timeOffset,
-            isBumper: ad.adPodInfo.isBumper,
-            podIndex: Int(ad.adPodInfo.podIndex)
+            totalAds: NSNumber(value: ad.adPodInfo.totalAds)
         )
     }
 }

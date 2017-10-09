@@ -68,6 +68,8 @@ enum IMAState: Int, StateProtocol {
     /// the request timeout interval
     private var requestTimeoutInterval: TimeInterval = IMAPlugin.defaultTimeoutInterval
 
+    private var lastProgress: TimeInterval = 0
+    
     /************************************************************/
     // MARK: - IMAContentPlayhead
     /************************************************************/
@@ -182,7 +184,7 @@ enum IMAState: Int, StateProtocol {
                 
                 self.invalidateRequestTimer()
                 // post ads request timeout event
-                self.notify(event: AdEvent.RequestTimedOut())
+                self.notify(event: AdEvent.AdsRequestTimedOut())
             }
         }
     }
@@ -304,7 +306,6 @@ enum IMAState: Int, StateProtocol {
         // Ad break, will be called before each scheduled ad break. Ad breaks may contain more than 1 ad.
         // `event.ad` is not available at this point do not use it here.
         case .AD_BREAK_READY:
-            self.notify(event: AdEvent.AdBreakReady())
             guard canPlayAd(forState: currentState) else { return }
             self.start(adsManager: adsManager)
         // single ad only fires `LOADED` without `AD_BREAK_READY`.
@@ -320,6 +321,9 @@ enum IMAState: Int, StateProtocol {
                 self.start(adsManager: adsManager)
             }
         case .STARTED:
+            if let ad = event.ad, ad.adPodInfo.adPosition == 1 {
+                self.notify(event: AdEvent.AdBreakStarted(adBreakInfo: PKAdBreakInfo(ad: ad, totalAdBreaks: adsManager.adCuePoints.count)))
+            }
             self.stateMachine.set(state: .adsPlaying)
             let event = event.ad != nil ? AdEvent.AdStarted(adInfo: PKAdInfo(ad: event.ad)) : AdEvent.AdStarted()
             self.notify(event: event)
@@ -329,15 +333,37 @@ enum IMAState: Int, StateProtocol {
             self.destroyManager()
             self.notify(event: AdEvent.AllAdsCompleted())
         case .CLICKED: self.notify(event: AdEvent.AdClicked())
-        case .COMPLETE: self.notify(event: AdEvent.AdComplete())
-        case .FIRST_QUARTILE: self.notify(event: AdEvent.AdFirstQuartile())
-        case .LOG: self.notify(event: AdEvent.AdLog())
-        case .MIDPOINT: self.notify(event: AdEvent.AdMidpoint())
-        case .PAUSE: self.notify(event: AdEvent.AdPaused())
+        case .COMPLETE:
+            self.lastProgress = 0
+            if let ad = event.ad {
+                // notify ad ended
+                let adInfo = PKAdInfo(ad: ad)
+                let adEndedReason = PKAdEndedReason(reasonType: .completed, offset: nil)
+                self.notify(event: AdEvent.AdEnded(adInfo: adInfo, reason: adEndedReason))
+                // notify ad break ended if last ad was ended
+                if ad.adPodInfo.adPosition == ad.adPodInfo.totalAds {
+                    let adBreakInfo = PKAdBreakInfo(ad: ad, totalAdBreaks: adsManager.adCuePoints.count)
+                    let adBreakEndedReason = PKAdBreakEndedReason(reasonType: .completed, error: nil)
+                    self.notify(event: AdEvent.AdBreakEnded(adBreakInfo: adBreakInfo, reason: adBreakEndedReason))
+                }
+            } else {
+                self.notify(event: AdEvent.AdEnded())
+            }
+        case .FIRST_QUARTILE: self.notify(event: AdEvent.FirstQuartile())
+        case .LOG: self.notify(event: AdEvent.ErrorLog())
+        case .MIDPOINT: self.notify(event: AdEvent.Midpoint())
+        case .PAUSE: self.notify(event: AdEvent.AdPaused(offset: self.lastProgress))
         case .RESUME: self.notify(event: AdEvent.AdResumed())
-        case .SKIPPED: self.notify(event: AdEvent.AdSkipped())
-        case .TAPPED: self.notify(event: AdEvent.AdTapped())
-        case .THIRD_QUARTILE: self.notify(event: AdEvent.AdThirdQuartile())
+        case .SKIPPED:
+            let adEndedReason = PKAdEndedReason(reasonType: .skipped, offset: NSNumber(value: self.lastProgress))
+            if let ad = event.ad {
+                let adInfo = PKAdInfo(ad: ad)
+                self.notify(event: AdEvent.AdEnded(adInfo: adInfo, reason: adEndedReason))
+            } else {
+                self.notify(event: AdEvent.AdEnded(reason: adEndedReason))
+            }
+        case .TAPPED: self.notify(event: AdEvent.AdTouched())
+        case .THIRD_QUARTILE: self.notify(event: AdEvent.ThirdQuartile())
         // Only used for dynamic ad insertion (not officially supported)
         case .AD_BREAK_ENDED, .AD_BREAK_STARTED, .CUEPOINTS_CHANGED, .STREAM_LOADED, .STREAM_STARTED: break
         }
@@ -351,16 +377,18 @@ enum IMAState: Int, StateProtocol {
     
     public func adsManagerDidRequestContentPause(_ adsManager: IMAAdsManager!) {
         self.stateMachine.set(state: .adsPlaying)
-        self.notify(event: AdEvent.AdDidRequestContentPause())
+        self.notify(event: AdEvent.AdBreakPending())
     }
     
     public func adsManagerDidRequestContentResume(_ adsManager: IMAAdsManager!) {
+        self.lastProgress = 0
         self.stateMachine.set(state: .contentPlaying)
-        self.notify(event: AdEvent.AdDidRequestContentResume())
+        self.notify(event: AdEvent.AdsPlaybackEnded())
     }
     
     public func adsManager(_ adsManager: IMAAdsManager!, adDidProgressToTime mediaTime: TimeInterval, totalTime: TimeInterval) {
-        self.notify(event: AdEvent.AdDidProgressToTime(mediaTime: mediaTime, totalTime: totalTime))
+        self.lastProgress = mediaTime
+        self.notify(event: AdEvent.AdPositionUpdated(mediaTime: mediaTime, totalTime: totalTime))
     }
     
     /************************************************************/
@@ -421,7 +449,7 @@ enum IMAState: Int, StateProtocol {
         // send ad cue points if exists and request is url type
         let adCuePoints = adsManager.getAdCuePoints()
         if adCuePoints.count > 0 {
-            self.notify(event: AdEvent.AdCuePointsUpdate(adCuePoints: adCuePoints))
+            self.notify(event: AdEvent.AdCuePointsUpdated(adCuePoints: adCuePoints))
         }
     }
     
@@ -461,7 +489,7 @@ enum IMAState: Int, StateProtocol {
     
     private func shouldDiscard(ad: IMAAd, currentState: IMAState) -> Bool {
         let adInfo = PKAdInfo(ad: ad)
-        let isPreRollInvalid = adInfo.positionType == .preRoll && (currentState == .adsRequestTimedOut || currentState == .contentPlaying)
+        let isPreRollInvalid = adInfo.positionType == .pre && (currentState == .adsRequestTimedOut || currentState == .contentPlaying)
         if isPreRollInvalid {
             return true
         }
