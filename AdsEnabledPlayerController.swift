@@ -69,7 +69,7 @@ class AdsEnabledPlayerController : PlayerDecoratorBase, AdsPluginDelegate, AdsPl
         }
     }
 
-    override func prepare(_ config: MediaConfig) throws {
+    override func prepare(_ config: MediaConfig) {
         self.stop()
         self.stateMachine.set(state: .waitingForPrepare)
         self.prepareMediaConfig = config
@@ -126,14 +126,14 @@ class AdsEnabledPlayerController : PlayerDecoratorBase, AdsPluginDelegate, AdsPl
     
     func adsPlugin(_ adsPlugin: AdsPlugin, loaderFailedWith error: String) {
         if self.isPlayEnabled {
-            self.tryPreparePlayerIfNeeded()
+            self.preparePlayerIfNeeded()
             super.play()
             self.adsPlugin.didPlay()
         }
     }
     
     func adsPlugin(_ adsPlugin: AdsPlugin, managerFailedWith error: String) {
-        self.tryPreparePlayerIfNeeded()
+        self.preparePlayerIfNeeded()
         super.play()
         self.adsPlugin.didPlay()
     }
@@ -144,14 +144,14 @@ class AdsEnabledPlayerController : PlayerDecoratorBase, AdsPluginDelegate, AdsPl
             super.pause()
         case let e where type(of: e) == AdEvent.adDidRequestContentResume:
             if !self.shouldPreventContentResume {
-                self.tryPreparePlayerIfNeeded()
+                self.preparePlayerIfNeeded()
                 super.resume()
             }
         case let e where type(of: e) == AdEvent.adResumed: self.isPlayEnabled = true
         case let e where type(of: e) == AdEvent.adStarted:
             // when starting to play pre roll start preparing the player.
             if event.adInfo?.positionType == .preRoll {
-                self.tryPreparePlayerIfNeeded()
+                self.preparePlayerIfNeeded()
             }
         case let e where type(of: e) == AdEvent.adLoaded || type(of: e) == AdEvent.adBreakReady:
             if self.shouldPreventContentResume == true { return } // no need to handle twice if already true
@@ -165,13 +165,13 @@ class AdsEnabledPlayerController : PlayerDecoratorBase, AdsPluginDelegate, AdsPl
     
     func adsRequestTimedOut(shouldPlay: Bool) {
         if shouldPlay {
-            self.tryPreparePlayerIfNeeded()
+            self.preparePlayerIfNeeded()
             self.play()
         }
     }
     
     func play(_ playType: PlayType) {
-        self.tryPreparePlayerIfNeeded()
+        self.preparePlayerIfNeeded()
         playType == .play ? super.play() : super.resume()
         self.adsPlugin.didPlay()
     }
@@ -180,25 +180,17 @@ class AdsEnabledPlayerController : PlayerDecoratorBase, AdsPluginDelegate, AdsPl
     // MARK: - Private
     /************************************************************/
     
-    private func tryPreparePlayerIfNeeded() {
-        do {
-            // prepare the player
-            try self.preparePlayerIfNeeded()
-        } catch let e {
-            // error loading the player
-            print("error:", e.localizedDescription)
-        }
-    }
-    
     /// prepare the player only if wasn't prepared yet.
-    private func preparePlayerIfNeeded() throws {
+    private func preparePlayerIfNeeded() {
         self.prepareSemaphore.wait() // use semaphore to make sure will not be called from more than one thread by mistake.
+        
         if self.stateMachine.getState() == .waitingForPrepare {
             self.stateMachine.set(state: .preparing)
             PKLog.debug("will prepare player")
-            try super.prepare(self.prepareMediaConfig)
+            super.prepare(self.prepareMediaConfig)
             self.stateMachine.set(state: .prepared)
         }
+        
         self.prepareSemaphore.signal()
     }
 }
