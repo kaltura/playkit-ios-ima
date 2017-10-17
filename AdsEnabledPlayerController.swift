@@ -103,12 +103,6 @@ class AdsEnabledPlayerController : PlayerDecoratorBase, AdsPluginDelegate, AdsPl
         self.shouldPreventContentResume = false
     }
     
-    @available(iOS 9.0, *)
-    override func createPiPController(with delegate: AVPictureInPictureControllerDelegate) -> AVPictureInPictureController? {
-        self.adsPlugin.pipDelegate = delegate
-        return super.createPiPController(with: self.adsPlugin)
-    }
-    
     override func destroy() {
         AppStateSubject.shared.remove(observer: self)
         super.destroy()
@@ -119,7 +113,7 @@ class AdsEnabledPlayerController : PlayerDecoratorBase, AdsPluginDelegate, AdsPl
     /************************************************************/
         
     func adsPluginShouldPlayAd(_ adsPlugin: AdsPlugin) -> Bool {
-        return self.delegate?.playerShouldPlayAd(self) ?? false
+        return self.delegate?.playerShouldPlayAd?(self) ?? false
     }
     
     var playAdsAfterTime: TimeInterval {
@@ -189,12 +183,14 @@ class AdsEnabledPlayerController : PlayerDecoratorBase, AdsPluginDelegate, AdsPl
     /// prepare the player only if wasn't prepared yet.
     private func preparePlayerIfNeeded() {
         self.prepareSemaphore.wait() // use semaphore to make sure will not be called from more than one thread by mistake.
+        
         if self.stateMachine.getState() == .waitingForPrepare {
             self.stateMachine.set(state: .preparing)
             PKLog.debug("will prepare player")
             super.prepare(self.prepareMediaConfig)
             self.stateMachine.set(state: .prepared)
         }
+        
         self.prepareSemaphore.signal()
     }
 }
