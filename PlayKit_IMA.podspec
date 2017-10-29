@@ -1,7 +1,6 @@
-
 Pod::Spec.new do |s|
     s.name              = 'PlayKit_IMA'
-    s.version           = '0.0.1'
+    s.version           = '1.0.0'
 		s.author           = { 'Kaltura' => 'community@kaltura.com' }
 		s.license          = { :type => 'AGPLv3', :text => 'AGPLv3' }
     s.summary           = 'PlayKit IMA Plugin'
@@ -16,5 +15,5 @@ Pod::Spec.new do |s|
         'LIBRARY_SEARCH_PATHS' => '$(inherited) "${PODS_ROOT}"/**' 
     }
   s.dependency 'PlayKit/Core'
-  s.dependency 'GoogleAds-IMA-iOS-SDK', '3.5.2'
+  s.dependency 'GoogleAds-IMA-iOS-SDK', '3.6.0'
 end

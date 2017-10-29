@@ -394,16 +394,20 @@ enum IMAState: Int, StateProtocol {
     
     private func createRenderingSettings() {
         self.renderingSettings.webOpenerDelegate = self
+        
         if let webOpenerPresentingController = self.config?.webOpenerPresentingController {
             self.renderingSettings.webOpenerPresentingController = webOpenerPresentingController
         }
+        
         if let bitrate = self.config?.videoBitrate {
             self.renderingSettings.bitrate = bitrate
         }
+        
         if let mimeTypes = self.config?.videoMimeTypes {
             self.renderingSettings.mimeTypes = mimeTypes
         }
-        if let playAdsAfterTime = self.dataSource?.playAdsAfterTime {
+
+        if let playAdsAfterTime = self.dataSource?.playAdsAfterTime, playAdsAfterTime > 0 {
             self.renderingSettings.playAdsAfterTime = playAdsAfterTime
         }
     }
@@ -424,6 +428,8 @@ enum IMAState: Int, StateProtocol {
     private func start(adsManager: IMAAdsManager) {
         if let canPlay = self.dataSource?.adsPluginShouldPlayAd(self), canPlay == true {
             adsManager.start()
+        } else {
+            self.adsManagerDidRequestContentResume(adsManager)
         }
     }
     
