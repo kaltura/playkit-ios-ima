@@ -10,6 +10,7 @@
 
 import GoogleInteractiveMediaAds
 import PlayKit
+import PlayKitUtils
 
 /// `IMAState` represents `IMAPlugin` state machine states.
 enum IMAState: Int, StateProtocol {
@@ -169,7 +170,7 @@ enum IMAState: Int, StateProtocol {
         // notify ads requested
         self.notify(event: AdEvent.AdsRequested(adTagUrl: self.config.adTagUrl))
         // start timeout timer
-        self.requestTimeoutTimer = Timer.after(self.requestTimeoutInterval) { [unowned self] in
+        self.requestTimeoutTimer = PKTimer.after(self.requestTimeoutInterval) { [unowned self] _ in
             if self.adsManager == nil {
                 PKLog.debug("Ads request timed out")
                 switch self.stateMachine.getState() {
