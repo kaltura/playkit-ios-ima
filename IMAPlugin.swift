@@ -39,6 +39,12 @@ enum IMAState: Int, StateProtocol {
 
 @objc public class IMAPlugin: BasePlugin, PKPluginWarmUp, PlayerDecoratorProvider, AdsPlugin, IMAAdsLoaderDelegate, IMAAdsManagerDelegate, IMAWebOpenerDelegate, IMAContentPlayhead {
     
+    // internal errors for requesting ads
+    enum IMAPluginRequestError: Error {
+        case missingPlayerView
+        case emptyAdTag
+    }
+    
     /// the default timeout interval for ads request.
     static let defaultTimeoutInterval: TimeInterval = 5
     
@@ -153,8 +159,12 @@ enum IMAState: Int, StateProtocol {
         return self.stateMachine.getState() == .adsPlaying
     }
     
-    func requestAds() {
-        guard let playerView = self.player?.view else { return }
+    func requestAds() throws {
+        guard let playerView = self.player?.view else { throw IMAPluginRequestError.missingPlayerView }
+        guard !self.config.adTagUrl.isEmpty else {
+            PKLog.debug("ad tag url is empty... can't request ads")
+            throw IMAPluginRequestError.emptyAdTag
+        }
         
         let adDisplayContainer = IMAPlugin.createAdDisplayContainer(forView: playerView, withCompanionView: self.config.companionView)
         let request = IMAAdsRequest(adTagUrl: self.config.adTagUrl, adDisplayContainer: adDisplayContainer, contentPlayhead: self, userContext: nil)
@@ -237,7 +247,7 @@ enum IMAState: Int, StateProtocol {
     
     func willEnterForeground() {
         if self.stateMachine.getState() == .startAndRequest {
-            self.requestAds()
+            try? self.requestAds()
         }
     }
     
@@ -281,7 +291,7 @@ enum IMAState: Int, StateProtocol {
         IMAPlugin.loader = nil
         if (adError.code.rawValue == 1005 || adError.code.rawValue == 1010) && self.loaderRetries > 0 {
             self.loaderRetries -= 1
-            self.requestAds()
+            try? self.requestAds()
         }
     }
     
