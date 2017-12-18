@@ -11,6 +11,7 @@
 import GoogleInteractiveMediaAds
 import PlayKit
 import PlayKitUtils
+import SwiftyJSON
 
 /// `IMAState` represents `IMAPlugin` state machine states.
 enum IMAState: Int, StateProtocol {
@@ -99,12 +100,18 @@ enum IMAState: Int, StateProtocol {
     @objc public override class var pluginName: String { return "IMAPlugin" }
     
     @objc public required init(player: Player, pluginConfig: Any?, messageBus: MessageBus) throws {
-        guard let imaConfig = pluginConfig as? IMAConfig else {
-            PKLog.error("missing plugin config")
-            throw PKPluginError.missingPluginConfig(pluginName: IMAPlugin.pluginName)
-        }
-        
         try super.init(player: player, pluginConfig: pluginConfig, messageBus: messageBus)
+
+        var _imaConfig: IMAConfig?
+        if let json = pluginConfig as? JSON {
+            _imaConfig = IMAPlugin.parse(json: json)
+        } else {
+            _imaConfig = pluginConfig as? IMAConfig
+        }
+        guard let imaConfig = _imaConfig else {
+            PKLog.error("missing plugin config")
+            throw PKPluginError.missingPluginConfig(pluginName: IMAPlugin.pluginName).asNSError
+        }
         
         self.config = imaConfig
         self.requestTimeoutInterval = imaConfig.requestTimeoutInterval
@@ -118,6 +125,36 @@ enum IMAState: Int, StateProtocol {
         self.messageBus?.addObserver(self, events: [PlayerEvent.ended]) { [weak self] event in
             self?.contentComplete()
         }
+    }
+    
+    public static func parse(json: JSON) -> IMAConfig? {
+        if let dictionary = json.dictionary {
+            let config = IMAConfig()
+            
+            if let language = dictionary["language"]?.string {
+                config.set(language: language)
+            }
+            
+            if let videoBitrate = dictionary["videoBitrate"]?.int32 {
+                config.set(videoBitrate: videoBitrate)
+            }
+            
+            if let adTagUrl = dictionary["adTagUrl"]?.string {
+                config.set(adTagUrl: adTagUrl)
+            }
+            
+            if let types = dictionary["videoMimeTypes"]?.array {
+                config.set(videoMimeTypes: types.map({ $0.object }))
+            }
+            
+            if let interval = dictionary["requestTimeoutInterval"]?.double {
+                config.set(requestTimeoutInterval: interval)
+            }
+
+            return config
+        }
+        
+        return nil
     }
     
     public override func onUpdateConfig(pluginConfig: Any) {
