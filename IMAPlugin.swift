@@ -144,7 +144,7 @@ enum IMAState: Int, StateProtocol {
             }
             
             if let types = dictionary["videoMimeTypes"]?.array {
-                config.set(videoMimeTypes: types.map({ $0.object }))
+                config.set(videoMimeTypes: types.map { $0.object } )
             }
             
             if let interval = dictionary["requestTimeoutInterval"]?.double {
