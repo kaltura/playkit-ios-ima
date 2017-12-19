@@ -36,7 +36,7 @@ protocol AdsPlugin: PKPlugin, AVPictureInPictureControllerDelegate {
     var isAdPlaying: Bool { get }
     
     /// request ads from the server.
-    func requestAds()
+    func requestAds() throws
     /// resume ad
     func resume()
     /// pause ad
