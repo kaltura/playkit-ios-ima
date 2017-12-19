@@ -73,7 +73,11 @@ class AdsEnabledPlayerController : PlayerDecoratorBase, AdsPluginDelegate, AdsPl
         self.stop()
         self.stateMachine.set(state: .waitingForPrepare)
         self.prepareMediaConfig = config
-        self.adsPlugin.requestAds()
+        do {
+            try self.adsPlugin.requestAds()
+        } catch {
+            self.preparePlayerIfNeeded()
+        }
     }
     
     override func play() {
