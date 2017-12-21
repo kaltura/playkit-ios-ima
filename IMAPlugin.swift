@@ -38,7 +38,7 @@ enum IMAState: Int, StateProtocol {
     case contentPlaying
 }
 
-@objc public class IMAPlugin: BasePlugin, PKPluginWarmUp, PlayerDecoratorProvider, AdsPlugin, IMAAdsLoaderDelegate, IMAAdsManagerDelegate, IMAWebOpenerDelegate, IMAContentPlayhead {
+@objc public class IMAPlugin: BasePlugin, PKPluginWarmUp, PKPluginParse, PlayerDecoratorProvider, AdsPlugin, IMAAdsLoaderDelegate, IMAAdsManagerDelegate, IMAWebOpenerDelegate, IMAContentPlayhead {
     
     // internal errors for requesting ads
     enum IMAPluginRequestError: Error {
@@ -110,7 +110,7 @@ enum IMAState: Int, StateProtocol {
 
         var _imaConfig: IMAConfig?
         if let json = pluginConfig as? JSON {
-            _imaConfig = IMAPlugin.parse(json: json)
+            _imaConfig = IMAPlugin.parse(json: json) as? IMAConfig
         } else {
             _imaConfig = pluginConfig as? IMAConfig
         }
@@ -133,8 +133,8 @@ enum IMAState: Int, StateProtocol {
         }
     }
     
-    public static func parse(json: JSON) -> IMAConfig? {
-        if let dictionary = json.dictionary {
+    public static func parse(json: Any?) -> Any? {
+        if let dictionary = (json as? JSON)?.dictionary {
             let config = IMAConfig()
             
             if let language = dictionary["language"]?.string {

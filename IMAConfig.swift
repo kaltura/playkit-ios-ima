@@ -10,8 +10,9 @@
 
 import Foundation
 import GoogleInteractiveMediaAds
+import PlayKit
 
-@objc public class IMAConfig: NSObject {
+@objc public class IMAConfig: NSObject, PKPluginConfig {
     
     @objc public let enableBackgroundPlayback = true
     // defaulted to false, because otherwise ad breaks events will not happen.
@@ -71,6 +72,35 @@ import GoogleInteractiveMediaAds
     @discardableResult
     @nonobjc public func set(requestTimeoutInterval: TimeInterval) -> Self {
         self.requestTimeoutInterval = requestTimeoutInterval
+        return self
+    }
+    
+    public func merge(config: Any?) -> Any {
+        if let imaConfig = config as? IMAConfig {
+            let defaultValues = IMAConfig()
+            
+            if imaConfig.adTagUrl != defaultValues.adTagUrl {
+                set(adTagUrl: imaConfig.adTagUrl)
+            }
+            if imaConfig.videoBitrate != defaultValues.videoBitrate {
+                set(videoBitrate: imaConfig.videoBitrate)
+            }
+            if let videoMimeTypes = imaConfig.videoMimeTypes {
+                set(videoMimeTypes: videoMimeTypes)
+            }
+            if imaConfig.language != defaultValues.language {
+                set(language: imaConfig.language)
+            }
+            if let companionView = imaConfig.companionView {
+                set(companionView: companionView)
+            }
+            if let webOpenerPresentingController = imaConfig.webOpenerPresentingController {
+                set(webOpenerPresentingController: webOpenerPresentingController)
+            }
+            if imaConfig.requestTimeoutInterval != defaultValues.requestTimeoutInterval {
+                set(requestTimeoutInterval: imaConfig.requestTimeoutInterval)
+            }
+        }
         return self
     }
 }
