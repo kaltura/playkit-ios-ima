@@ -19,5 +19,6 @@ Pod::Spec.new do |s|
   }
 
   s.dependency 'PlayKit/Core'
+  s.dependency 'PlayKitUtils'
   s.dependency 'GoogleAds-IMA-iOS-SDK', '3.6.0'
 end

@@ -12,7 +12,7 @@ import Foundation
 import GoogleInteractiveMediaAds
 import PlayKit
 
-@objc public class IMAConfig: NSObject, PKPluginConfig {
+@objc public class IMAConfig: NSObject {
     
     @objc public let enableBackgroundPlayback = true
     // defaulted to false, because otherwise ad breaks events will not happen.
@@ -75,32 +75,31 @@ import PlayKit
         return self
     }
     
-    public func merge(config: Any?) -> Any {
-        if let imaConfig = config as? IMAConfig {
-            let defaultValues = IMAConfig()
-            
-            if imaConfig.adTagUrl != defaultValues.adTagUrl {
-                set(adTagUrl: imaConfig.adTagUrl)
-            }
-            if imaConfig.videoBitrate != defaultValues.videoBitrate {
-                set(videoBitrate: imaConfig.videoBitrate)
-            }
-            if let videoMimeTypes = imaConfig.videoMimeTypes {
-                set(videoMimeTypes: videoMimeTypes)
-            }
-            if imaConfig.language != defaultValues.language {
-                set(language: imaConfig.language)
-            }
-            if let companionView = imaConfig.companionView {
-                set(companionView: companionView)
-            }
-            if let webOpenerPresentingController = imaConfig.webOpenerPresentingController {
-                set(webOpenerPresentingController: webOpenerPresentingController)
-            }
-            if imaConfig.requestTimeoutInterval != defaultValues.requestTimeoutInterval {
-                set(requestTimeoutInterval: imaConfig.requestTimeoutInterval)
-            }
+    public func merge(config: IMAConfig) -> IMAConfig {
+        let defaultValues = IMAConfig()
+        
+        if config.adTagUrl != defaultValues.adTagUrl {
+            set(adTagUrl: config.adTagUrl)
         }
+        if config.videoBitrate != defaultValues.videoBitrate {
+            set(videoBitrate: config.videoBitrate)
+        }
+        if let videoMimeTypes = config.videoMimeTypes {
+            set(videoMimeTypes: videoMimeTypes)
+        }
+        if config.language != defaultValues.language {
+            set(language: config.language)
+        }
+        if let companionView = config.companionView {
+            set(companionView: companionView)
+        }
+        if let webOpenerPresentingController = config.webOpenerPresentingController {
+            set(webOpenerPresentingController: webOpenerPresentingController)
+        }
+        if config.requestTimeoutInterval != defaultValues.requestTimeoutInterval {
+            set(requestTimeoutInterval: config.requestTimeoutInterval)
+        }
+        
         return self
     }
 }

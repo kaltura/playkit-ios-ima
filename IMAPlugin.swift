@@ -38,7 +38,7 @@ enum IMAState: Int, StateProtocol {
     case contentPlaying
 }
 
-@objc public class IMAPlugin: BasePlugin, PKPluginWarmUp, PKPluginParse, PlayerDecoratorProvider, AdsPlugin, IMAAdsLoaderDelegate, IMAAdsManagerDelegate, IMAWebOpenerDelegate, IMAContentPlayhead {
+@objc public class IMAPlugin: BasePlugin, PKPluginWarmUp, PKPluginMerge, PlayerDecoratorProvider, AdsPlugin, IMAAdsLoaderDelegate, IMAAdsManagerDelegate, IMAWebOpenerDelegate, IMAContentPlayhead {
     
     // internal errors for requesting ads
     enum IMAPluginRequestError: Error {
@@ -131,6 +131,13 @@ enum IMAState: Int, StateProtocol {
         self.messageBus?.addObserver(self, events: [PlayerEvent.ended]) { [weak self] event in
             self?.contentComplete()
         }
+    }
+    
+    public static func merge(uiConf: Any, appConf: Any) -> Any? {
+        if let json = uiConf as? JSON, let imaConfig = appConf as? IMAConfig, let config = IMAPlugin.parse(json: json) as? IMAConfig {
+            return config.merge(config: imaConfig)
+        }
+        return nil
     }
     
     public static func parse(json: Any?) -> Any? {
