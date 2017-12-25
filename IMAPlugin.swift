@@ -211,7 +211,8 @@ enum IMAState: Int, StateProtocol {
         }
         
         let adDisplayContainer = IMAPlugin.createAdDisplayContainer(forView: playerView, withCompanionView: self.config.companionView)
-        let request = IMAAdsRequest(adTagUrl: self.config.adTagUrl, adDisplayContainer: adDisplayContainer, contentPlayhead: self, userContext: nil)
+        let adTagUrl = tokenReplacer != nil ? tokenReplacer!.replace(expression: config.adTagUrl) : config.adTagUrl
+        let request = IMAAdsRequest(adTagUrl: adTagUrl, adDisplayContainer: adDisplayContainer, contentPlayhead: self, userContext: nil)
         // sets the state
         self.stateMachine.set(state: .adsRequested)
         // make sure loader exists otherwise create.
@@ -222,7 +223,7 @@ enum IMAState: Int, StateProtocol {
         PKLog.debug("request Ads")
         IMAPlugin.loader.requestAds(with: request)
         // notify ads requested
-        self.notify(event: AdEvent.AdsRequested(adTagUrl: self.config.adTagUrl))
+        self.notify(event: AdEvent.AdsRequested(adTagUrl: adTagUrl))
         // start timeout timer
         self.requestTimeoutTimer = PKTimer.after(self.requestTimeoutInterval) { [unowned self] _ in
             if self.adsManager == nil {
