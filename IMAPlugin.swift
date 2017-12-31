@@ -110,7 +110,7 @@ enum IMAState: Int, StateProtocol {
 
         var _imaConfig: IMAConfig?
         if let json = pluginConfig as? JSON {
-            _imaConfig = IMAPlugin.parse(json: json) as? IMAConfig
+            _imaConfig = IMAConfig.parse(json: json)
         } else {
             _imaConfig = pluginConfig as? IMAConfig
         }
@@ -134,39 +134,9 @@ enum IMAState: Int, StateProtocol {
     }
     
     public static func merge(uiConf: Any, appConf: Any) -> Any? {
-        if let json = uiConf as? JSON, let imaConfig = appConf as? IMAConfig, let config = IMAPlugin.parse(json: json) as? IMAConfig {
+        if let json = uiConf as? JSON, let imaConfig = appConf as? IMAConfig, let config = IMAConfig.parse(json: json) {
             return config.merge(config: imaConfig)
         }
-        return nil
-    }
-    
-    public static func parse(json: Any?) -> Any? {
-        if let dictionary = (json as? JSON)?.dictionary {
-            let config = IMAConfig()
-            
-            if let language = dictionary["language"]?.string {
-                config.set(language: language)
-            }
-            
-            if let videoBitrate = dictionary["videoBitrate"]?.int32 {
-                config.set(videoBitrate: videoBitrate)
-            }
-            
-            if let adTagUrl = dictionary["adTagUrl"]?.string {
-                config.set(adTagUrl: adTagUrl)
-            }
-            
-            if let types = dictionary["videoMimeTypes"]?.array {
-                config.set(videoMimeTypes: types.map { $0.object } )
-            }
-            
-            if let interval = dictionary["requestTimeoutInterval"]?.double {
-                config.set(requestTimeoutInterval: interval)
-            }
-
-            return config
-        }
-        
         return nil
     }
     

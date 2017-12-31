@@ -11,6 +11,7 @@
 import Foundation
 import GoogleInteractiveMediaAds
 import PlayKit
+import SwiftyJSON
 
 @objc public class IMAConfig: NSObject {
     
@@ -101,5 +102,35 @@ import PlayKit
         }
         
         return self
+    }
+    
+    public static func parse(json: JSON) -> IMAConfig? {
+        if let dictionary = json.dictionary {
+            let config = IMAConfig()
+            
+            if let language = dictionary["language"]?.string {
+                config.set(language: language)
+            }
+            
+            if let videoBitrate = dictionary["videoBitrate"]?.int32 {
+                config.set(videoBitrate: videoBitrate)
+            }
+            
+            if let adTagUrl = dictionary["adTagUrl"]?.string {
+                config.set(adTagUrl: adTagUrl)
+            }
+            
+            if let types = dictionary["videoMimeTypes"]?.array {
+                config.set(videoMimeTypes: types.map { $0.object } )
+            }
+            
+            if let interval = dictionary["requestTimeoutInterval"]?.double {
+                config.set(requestTimeoutInterval: interval)
+            }
+            
+            return config
+        }
+        
+        return nil
     }
 }
