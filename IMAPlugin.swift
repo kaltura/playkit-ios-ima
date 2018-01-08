@@ -105,8 +105,8 @@ enum IMAState: Int, StateProtocol {
     
     @objc public override class var pluginName: String { return "IMAPlugin" }
     
-    @objc public required init(player: Player, pluginConfig: Any?, messageBus: MessageBus) throws {
-        try super.init(player: player, pluginConfig: pluginConfig, messageBus: messageBus)
+    @objc public required init(player: Player, pluginConfig: Any?, messageBus: MessageBus, tokenReplacer: TokenReplacer?) throws {
+        try super.init(player: player, pluginConfig: pluginConfig, messageBus: messageBus, tokenReplacer: tokenReplacer)
 
         var _imaConfig: IMAConfig?
         if let json = pluginConfig as? JSON {
