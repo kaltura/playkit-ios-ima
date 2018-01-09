@@ -134,10 +134,23 @@ enum IMAState: Int, StateProtocol {
     }
     
     public static func merge(uiConf: Any, appConf: Any) -> Any? {
-        if let json = uiConf as? JSON, let imaConfig = appConf as? IMAConfig, let config = IMAConfig.parse(json: json) {
-            return config.merge(config: imaConfig)
+        var uiConfig: IMAConfig?
+        if uiConf is JSON {
+            uiConfig = IMAConfig.parse(json: uiConf as! JSON)
+        } else {
+            uiConfig = uiConf as? IMAConfig
         }
-        return nil
+        guard uiConfig != nil else { return appConf }
+        
+        var appConfig: IMAConfig?
+        if appConf is JSON {
+            appConfig = IMAConfig.parse(json: appConf as! JSON)
+        } else {
+            appConfig = appConf as? IMAConfig
+        }
+        guard appConfig != nil else { return uiConfig }
+
+        return uiConfig?.merge(config: appConfig!)
     }
     
     public override func onUpdateConfig(pluginConfig: Any) {
