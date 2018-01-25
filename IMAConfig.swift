@@ -25,8 +25,8 @@ import SwiftyJSON
     @objc public var videoBitrate = kIMAAutodetectBitrate
     @objc public var videoMimeTypes: [Any]?
     @objc public var adTagUrl: String = ""
-    @objc public var companionView: UIView?
-    @objc public var webOpenerPresentingController: UIViewController?
+    @objc public weak var companionView: UIView?
+    @objc public weak var webOpenerPresentingController: UIViewController?
     /// ads request timeout interval, when ads request will take more then this time will resume content.
     @objc public var requestTimeoutInterval: TimeInterval = IMAPlugin.defaultTimeoutInterval
     /// enables debug mode on IMA SDK which will output detailed log information to the console. 
