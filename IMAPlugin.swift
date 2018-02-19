@@ -103,7 +103,7 @@ enum IMAState: Int, StateProtocol {
     // MARK: - PKPlugin
     /************************************************************/
     
-    @objc public override class var pluginName: String { return "IMAPlugin" }
+    @objc public override class var pluginName: String { return "ima" }
     
     @objc public required init(player: Player, pluginConfig: Any?, messageBus: MessageBus, tokenReplacer: TokenReplacer?) throws {
         try super.init(player: player, pluginConfig: pluginConfig, messageBus: messageBus, tokenReplacer: tokenReplacer)
