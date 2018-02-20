@@ -15,11 +15,11 @@ import SwiftyJSON
 
 @objc public class IMAConfig: NSObject {
     
-    @objc public let enableBackgroundPlayback = true
+    @objc public var enableBackgroundPlayback = true
     // defaulted to false, because otherwise ad breaks events will not happen.
     // we need to have control on whether ad break will start playing or not using `Loaded` event is not enough. 
     // (will also need more safety checks for loaded because loaded will happen more than once).
-    @objc public let autoPlayAdBreaks = false
+    @objc public var autoPlayAdBreaks = false
     @objc public var language: String = "en"
 
     @objc public var videoBitrate = kIMAAutodetectBitrate
@@ -76,6 +76,24 @@ import SwiftyJSON
         return self
     }
     
+    @discardableResult
+    @nonobjc public func set(autoPlayAdBreaks: Bool) -> Self {
+        self.autoPlayAdBreaks = autoPlayAdBreaks
+        return self
+    }
+    
+    @discardableResult
+    @nonobjc public func set(enableBackgroundPlayback: Bool) -> Self {
+        self.enableBackgroundPlayback = enableBackgroundPlayback
+        return self
+    }
+    
+    @discardableResult
+    @nonobjc public func set(enableDebugMode: Bool) -> Self {
+        self.enableDebugMode = enableDebugMode
+        return self
+    }
+    
     public func merge(config: IMAConfig) -> IMAConfig {
         let defaultValues = IMAConfig()
         
@@ -100,6 +118,15 @@ import SwiftyJSON
         if config.requestTimeoutInterval != defaultValues.requestTimeoutInterval {
             set(requestTimeoutInterval: config.requestTimeoutInterval)
         }
+        if config.autoPlayAdBreaks != defaultValues.autoPlayAdBreaks {
+            set(autoPlayAdBreaks: config.autoPlayAdBreaks)
+        }
+        if config.enableBackgroundPlayback != defaultValues.enableBackgroundPlayback {
+            set(enableBackgroundPlayback: config.enableBackgroundPlayback)
+        }
+        if config.enableDebugMode != defaultValues.enableDebugMode {
+            set(enableDebugMode: config.enableDebugMode)
+        }
         
         return self
     }
@@ -108,24 +135,35 @@ import SwiftyJSON
         if let dictionary = json.dictionary {
             let config = IMAConfig()
             
-            if let language = dictionary["language"]?.string {
-                config.set(language: language)
+            if let adsRenderingSettings = dictionary["adsRenderingSettings"]?.dictionary {
+                if let loadVideoTimeout = adsRenderingSettings["loadVideoTimeout"]?.double {
+                    config.set(requestTimeoutInterval: loadVideoTimeout)
+                }
+                if let types = adsRenderingSettings["mimeTypes"]?.array {
+                    config.set(videoMimeTypes: types.map { $0.object })
+                }
+                if let bitrate = adsRenderingSettings["bitrate"]?.int32 {
+                    config.set(videoBitrate: bitrate)
+                }
             }
             
-            if let videoBitrate = dictionary["videoBitrate"]?.int32 {
-                config.set(videoBitrate: videoBitrate)
+            if let sdkSettings = dictionary["sdkSettings"]?.dictionary {
+                if let language = sdkSettings["language"]?.string {
+                    config.set(language: language)
+                }
+                if let autoPlayAdBreaks = sdkSettings["autoPlayAdBreaks"]?.bool {
+                    config.set(autoPlayAdBreaks: autoPlayAdBreaks)
+                }
+                if let debugMode = sdkSettings["debugMode"]?.bool {
+                    config.set(enableDebugMode: debugMode)
+                }
+                if let enableBackgroundPlayback = sdkSettings["enableBackgroundPlayback"]?.bool {
+                    config.set(enableBackgroundPlayback: enableBackgroundPlayback)
+                }
             }
             
             if let adTagUrl = dictionary["adTagUrl"]?.string {
                 config.set(adTagUrl: adTagUrl)
-            }
-            
-            if let types = dictionary["videoMimeTypes"]?.array {
-                config.set(videoMimeTypes: types.map { $0.object } )
-            }
-            
-            if let interval = dictionary["requestTimeoutInterval"]?.double {
-                config.set(requestTimeoutInterval: interval)
             }
             
             return config
