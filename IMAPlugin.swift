@@ -133,24 +133,12 @@ enum IMAState: Int, StateProtocol {
         }
     }
     
-    public static func merge(uiConf: Any, appConf: Any) -> Any? {
-        var uiConfig: IMAConfig?
-        if uiConf is JSON {
-            uiConfig = IMAConfig.parse(json: uiConf as! JSON)
-        } else {
-            uiConfig = uiConf as? IMAConfig
-        }
-        guard uiConfig != nil else { return appConf }
-        
-        var appConfig: IMAConfig?
-        if appConf is JSON {
-            appConfig = IMAConfig.parse(json: appConf as! JSON)
-        } else {
-            appConfig = appConf as? IMAConfig
-        }
-        guard appConfig != nil else { return uiConfig }
-
-        return uiConfig?.merge(config: appConfig!)
+    static public func parse(json: Any) -> PKPluginConfigMerge? {
+        return IMAConfig.parse(json: json as! JSON)
+    }
+    
+    static public func cast(uiConf: Any) -> PKPluginConfigMerge? {
+        return uiConf as? IMAConfig
     }
     
     public override func onUpdateConfig(pluginConfig: Any) {

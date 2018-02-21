@@ -13,7 +13,7 @@ import GoogleInteractiveMediaAds
 import PlayKit
 import SwiftyJSON
 
-@objc public class IMAConfig: NSObject {
+@objc public class IMAConfig: NSObject, PKPluginConfigMerge {
     
     @objc public var enableBackgroundPlayback = true
     // defaulted to false, because otherwise ad breaks events will not happen.
@@ -94,40 +94,41 @@ import SwiftyJSON
         return self
     }
     
-    public func merge(config: IMAConfig) -> IMAConfig {
-        let defaultValues = IMAConfig()
-        
-        if config.adTagUrl != defaultValues.adTagUrl {
-            set(adTagUrl: config.adTagUrl)
+    public func merge(config: PKPluginConfigMerge) -> PKPluginConfigMerge {
+        if let config = config as? IMAConfig {
+            let defaultValues = IMAConfig()
+            
+            if config.adTagUrl != defaultValues.adTagUrl {
+                set(adTagUrl: config.adTagUrl)
+            }
+            if config.videoBitrate != defaultValues.videoBitrate {
+                set(videoBitrate: config.videoBitrate)
+            }
+            if let videoMimeTypes = config.videoMimeTypes {
+                set(videoMimeTypes: videoMimeTypes)
+            }
+            if config.language != defaultValues.language {
+                set(language: config.language)
+            }
+            if let companionView = config.companionView {
+                set(companionView: companionView)
+            }
+            if let webOpenerPresentingController = config.webOpenerPresentingController {
+                set(webOpenerPresentingController: webOpenerPresentingController)
+            }
+            if config.requestTimeoutInterval != defaultValues.requestTimeoutInterval {
+                set(requestTimeoutInterval: config.requestTimeoutInterval)
+            }
+            if config.autoPlayAdBreaks != defaultValues.autoPlayAdBreaks {
+                set(autoPlayAdBreaks: config.autoPlayAdBreaks)
+            }
+            if config.enableBackgroundPlayback != defaultValues.enableBackgroundPlayback {
+                set(enableBackgroundPlayback: config.enableBackgroundPlayback)
+            }
+            if config.enableDebugMode != defaultValues.enableDebugMode {
+                set(enableDebugMode: config.enableDebugMode)
+            }
         }
-        if config.videoBitrate != defaultValues.videoBitrate {
-            set(videoBitrate: config.videoBitrate)
-        }
-        if let videoMimeTypes = config.videoMimeTypes {
-            set(videoMimeTypes: videoMimeTypes)
-        }
-        if config.language != defaultValues.language {
-            set(language: config.language)
-        }
-        if let companionView = config.companionView {
-            set(companionView: companionView)
-        }
-        if let webOpenerPresentingController = config.webOpenerPresentingController {
-            set(webOpenerPresentingController: webOpenerPresentingController)
-        }
-        if config.requestTimeoutInterval != defaultValues.requestTimeoutInterval {
-            set(requestTimeoutInterval: config.requestTimeoutInterval)
-        }
-        if config.autoPlayAdBreaks != defaultValues.autoPlayAdBreaks {
-            set(autoPlayAdBreaks: config.autoPlayAdBreaks)
-        }
-        if config.enableBackgroundPlayback != defaultValues.enableBackgroundPlayback {
-            set(enableBackgroundPlayback: config.enableBackgroundPlayback)
-        }
-        if config.enableDebugMode != defaultValues.enableDebugMode {
-            set(enableDebugMode: config.enableDebugMode)
-        }
-        
         return self
     }
     
