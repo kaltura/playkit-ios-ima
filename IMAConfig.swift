@@ -138,7 +138,7 @@ import SwiftyJSON
             
             if let adsRenderingSettings = dictionary["adsRenderingSettings"]?.dictionary {
                 if let loadVideoTimeout = adsRenderingSettings["loadVideoTimeout"]?.double {
-                    config.set(requestTimeoutInterval: loadVideoTimeout)
+                    config.set(requestTimeoutInterval: loadVideoTimeout > 100 ? loadVideoTimeout / 1000 : loadVideoTimeout)
                 }
                 if let types = adsRenderingSettings["mimeTypes"]?.array {
                     config.set(videoMimeTypes: types.map { $0.object })
