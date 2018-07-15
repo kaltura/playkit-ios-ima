@@ -374,7 +374,7 @@ enum IMAState: Int, StateProtocol {
         imaSettings.enableBackgroundPlayback = config.enableBackgroundPlayback
         imaSettings.autoPlayAdBreaks = config.autoPlayAdBreaks
         imaSettings.enableDebugMode = config.enableDebugMode
-        imaSettings.enableOmidExperimentally = true;
+        imaSettings.enableOmidExperimentally = config.enableOmidExperimentally;
         IMAPlugin.loader = IMAAdsLoader(settings: imaSettings)
     }
     

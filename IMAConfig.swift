@@ -30,6 +30,7 @@ import GoogleInteractiveMediaAds
     /// enables debug mode on IMA SDK which will output detailed log information to the console. 
     /// The default value is false.
     @objc public var enableDebugMode: Bool = false
+    @objc public var enableOmidExperimentally : Bool = false
     
     // Builders
     @discardableResult
