@@ -7,17 +7,17 @@ Pod::Spec.new do |s|
   s.homepage         = 'https://github.com/kaltura/playkit-ios-ima'
   s.source           = { :git => 'https://github.com/kaltura/playkit-ios-ima.git', :tag => 'v' + s.version.to_s }
   
-  s.source_files = '**/*.swift'
+  s.source_files = '**/*.swift', '**/IMASettings+OMID.h'
   
   s.ios.deployment_target = '8.0'
 
   s.xcconfig = { 
         'CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES' => 'YES',
-        'OTHER_LDFLAGS' => '$(inherited) -framework "GoogleInteractiveMediaAds"',
         'FRAMEWORK_SEARCH_PATHS' => '$(inherited) "${PODS_ROOT}"/**',
         'LIBRARY_SEARCH_PATHS' => '$(inherited) "${PODS_ROOT}"/**' 
   }
 
   s.dependency 'PlayKit/Core'
-  s.dependency 'GoogleAds-IMA-iOS-SDK', '3.6.0'
+  #s.dependency 'GoogleAds-IMA-iOS-SDK', '3.6.0'
+  s.vendored_frameworks = 'GoogleInteractiveMediaAds.framework'
 end
