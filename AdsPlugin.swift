@@ -29,8 +29,8 @@ protocol AdsPluginDelegate : class {
 }
 
 protocol AdsPlugin: PKPlugin, AVPictureInPictureControllerDelegate {
-    weak var dataSource: AdsPluginDataSource? { get set }
-    weak var delegate: AdsPluginDelegate? { get set }
+    var dataSource: AdsPluginDataSource? { get set }
+    var delegate: AdsPluginDelegate? { get set }
     var pipDelegate: AVPictureInPictureControllerDelegate? { get set }
     /// is ad playing currently.
     var isAdPlaying: Bool { get }
