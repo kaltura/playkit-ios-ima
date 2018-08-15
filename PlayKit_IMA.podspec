@@ -6,6 +6,7 @@ Pod::Spec.new do |s|
   s.summary          = 'PlayKit IMA Plugin'
   s.homepage         = 'https://github.com/kaltura/playkit-ios-ima'
   s.source           = { :git => 'https://github.com/kaltura/playkit-ios-ima.git', :tag => 'v' + s.version.to_s }
+  s.swift_version    = '4.0'
   
   s.source_files = '**/*.swift'
   
