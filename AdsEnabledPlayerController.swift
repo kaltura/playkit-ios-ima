@@ -70,7 +70,11 @@ class AdsEnabledPlayerController : PlayerDecoratorBase, AdsPluginDelegate, AdsPl
     }
 
     override func prepare(_ config: MediaConfig) {
-        self.stop()
+        self.stateMachine.set(state: .start)
+        self.adsPlugin.destroyManager()
+        self.isPlayEnabled = false
+        self.shouldPreventContentResume = false
+        
         self.stateMachine.set(state: .waitingForPrepare)
         self.prepareMediaConfig = config
         self.adsPlugin.requestAds()
