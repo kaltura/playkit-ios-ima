@@ -140,26 +140,31 @@ class AdsEnabledPlayerController : PlayerDecoratorBase, AdsPluginDelegate, AdsPl
     
     func adsPlugin(_ adsPlugin: AdsPlugin, didReceive event: PKEvent) {
         switch event {
-        case let e where type(of: e) == AdEvent.adDidRequestContentPause:
+        case is AdEvent.AdDidRequestContentPause:
             super.pause()
-        case let e where type(of: e) == AdEvent.adDidRequestContentResume:
+        case is AdEvent.AdDidRequestContentResume:
             if !self.shouldPreventContentResume {
                 self.preparePlayerIfNeeded()
                 super.resume()
             }
-        case let e where type(of: e) == AdEvent.adResumed: self.isPlayEnabled = true
-        case let e where type(of: e) == AdEvent.adStarted:
+        case is AdEvent.AdPaused:
+            self.isPlayEnabled = false
+        case is AdEvent.AdResumed:
+            self.isPlayEnabled = true
+        case is AdEvent.AdStarted:
             // when starting to play pre roll start preparing the player.
             if event.adInfo?.positionType == .preRoll {
                 self.preparePlayerIfNeeded()
             }
-        case let e where type(of: e) == AdEvent.adLoaded || type(of: e) == AdEvent.adBreakReady:
+        case is AdEvent.AdBreakReady, is AdEvent.AdLoaded:
             if self.shouldPreventContentResume == true { return } // no need to handle twice if already true
             if event.adInfo?.positionType == .postRoll {
                 self.shouldPreventContentResume = true
             }
-        case let e where type(of: e) == AdEvent.allAdsCompleted: self.shouldPreventContentResume = false
-        default: break
+        case is AdEvent.AllAdsCompleted:
+            self.shouldPreventContentResume = false
+        default:
+            break
         }
     }
     
