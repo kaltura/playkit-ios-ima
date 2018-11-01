@@ -32,6 +32,9 @@ import GoogleInteractiveMediaAds
     /// The default value is false.
     @objc public var enableDebugMode: Bool = false
     
+    @objc public var playerType: String = "kaltura-vp-ios"
+    @objc public var playerVersion: String?
+    
     // Builders
     @discardableResult
     @nonobjc public func set(language: String) -> Self {
@@ -72,6 +75,18 @@ import GoogleInteractiveMediaAds
     @discardableResult
     @nonobjc public func set(requestTimeoutInterval: TimeInterval) -> Self {
         self.requestTimeoutInterval = requestTimeoutInterval
+        return self
+    }
+    
+    @discardableResult
+    @nonobjc public func set(playerType: String) -> Self {
+        self.playerType = playerType
+        return self
+    }
+    
+    @discardableResult
+    @nonobjc public func set(playerVersion: String) -> Self {
+        self.playerVersion = playerVersion
         return self
     }
 }
