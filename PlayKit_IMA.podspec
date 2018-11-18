@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'PlayKit_IMA'
-  s.version          = '1.2.x-dev'
+  s.version          = '1.2.0'
   s.author           = { 'Kaltura' => 'community@kaltura.com' }
   s.license          = { :type => 'AGPLv3', :text => 'AGPLv3' }
   s.summary          = 'PlayKit IMA Plugin'
