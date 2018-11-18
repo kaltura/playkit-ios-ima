@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
   
   s.source_files = '**/*.swift'
   
-  s.ios.deployment_target = '8.0'
+  s.ios.deployment_target = '9.0'
 
   s.xcconfig = { 
         'CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES' => 'YES',
@@ -19,6 +19,6 @@ Pod::Spec.new do |s|
         'LIBRARY_SEARCH_PATHS' => '$(inherited) "${PODS_ROOT}"/**' 
   }
 
-  s.dependency 'PlayKit/Core'
+  s.dependency 'PlayKit', '~> 3.7.0'
   s.dependency 'GoogleAds-IMA-iOS-SDK', '3.7.3'
 end
