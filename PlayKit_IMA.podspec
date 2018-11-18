@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'PlayKit_IMA'
-  s.version          = '1.1.1'
+  s.version          = '1.2.0'
   s.author           = { 'Kaltura' => 'community@kaltura.com' }
   s.license          = { :type => 'AGPLv3', :text => 'AGPLv3' }
   s.summary          = 'PlayKit IMA Plugin'
@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
   
   s.source_files = '**/*.swift'
   
-  s.ios.deployment_target = '8.0'
+  s.ios.deployment_target = '9.0'
 
   s.xcconfig = { 
         'CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES' => 'YES',
@@ -19,6 +19,6 @@ Pod::Spec.new do |s|
         'LIBRARY_SEARCH_PATHS' => '$(inherited) "${PODS_ROOT}"/**' 
   }
 
-  s.dependency 'PlayKit/Core'
-  s.dependency 'GoogleAds-IMA-iOS-SDK', '3.6.0'
+  s.dependency 'PlayKit', '~> 3.7.0'
+  s.dependency 'GoogleAds-IMA-iOS-SDK', '3.7.3'
 end

@@ -375,6 +375,8 @@ enum IMAState: Int, StateProtocol {
         imaSettings.autoPlayAdBreaks = config.autoPlayAdBreaks
         if let ppid = config.ppid { imaSettings.ppid = ppid }
         imaSettings.enableDebugMode = config.enableDebugMode
+        imaSettings.playerType = config.playerType
+        imaSettings.playerVersion = config.playerVersion
         IMAPlugin.loader = IMAAdsLoader(settings: imaSettings)
     }
     
