@@ -24,5 +24,6 @@ Pod::Spec.new do |s|
   }
 
   s.dependency 'PlayKit', '~> 3.7.0' + suffix
+  s.dependency 'XCGLogger', '~> 6.1.0'
   s.dependency 'GoogleAds-IMA-iOS-SDK', '3.8.1'
 end
