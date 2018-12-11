@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'PlayKit_IMA'
-  s.version          = '1.2.0'
+  s.version          = '1.2.1'
   s.author           = { 'Kaltura' => 'community@kaltura.com' }
   s.license          = { :type => 'AGPLv3', :text => 'AGPLv3' }
   s.summary          = 'PlayKit IMA Plugin'
@@ -20,5 +20,6 @@ Pod::Spec.new do |s|
   }
 
   s.dependency 'PlayKit', '~> 3.7.0'
+  s.dependency 'XCGLogger', '~> 6.1.0'
   s.dependency 'GoogleAds-IMA-iOS-SDK', '3.7.3'
 end
