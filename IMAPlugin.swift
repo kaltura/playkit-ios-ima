@@ -419,7 +419,7 @@ enum IMAState: Int, StateProtocol {
         }
         
         if let bitrate = self.config?.videoBitrate {
-            self.renderingSettings.bitrate = Int(bitrate)
+            self.renderingSettings.bitrate = bitrate
         }
         
         if let mimeTypes = self.config?.videoMimeTypes {
