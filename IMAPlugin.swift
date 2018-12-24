@@ -350,7 +350,12 @@ enum IMAState: Int, StateProtocol {
             // means all ads have been played so we can destroy the adsManager.
             self.destroyManager()
             self.notify(event: AdEvent.AllAdsCompleted())
-        case .CLICKED: self.notify(event: AdEvent.AdClicked())
+        case .CLICKED:
+            if let clickThroughUrl = event.ad.value(forKey: "clickThroughUrl") as? String {
+                self.notify(event: AdEvent.AdClicked(clickThroughUrl: clickThroughUrl))
+            } else {
+                self.notify(event: AdEvent.AdClicked())
+            }
         case .COMPLETE: self.notify(event: AdEvent.AdComplete())
         case .FIRST_QUARTILE: self.notify(event: AdEvent.AdFirstQuartile())
         case .LOG: self.notify(event: AdEvent.AdLog())
