@@ -35,7 +35,9 @@ extension PKAdInfo {
             adPosition: Int(ad.adPodInfo.adPosition),
             timeOffset: ad.adPodInfo.timeOffset,
             isBumper: ad.adPodInfo.isBumper,
-            podIndex: Int(ad.adPodInfo.podIndex)
-        )
+            podIndex: Int(ad.adPodInfo.podIndex),
+            vastMediaWidth: ad.vastMediaWidth,
+            vastMediaHeight: ad.vastMediaHeight,
+            vastMediaBitrate: ad.vastMediaBitrate)
     }
 }
