@@ -29,13 +29,13 @@ extension PKAdInfo {
             contentType: ad.contentType,
             adId: ad.adId,
             adSystem: ad.adSystem,
-            height: Int(ad.height),
-            width: Int(ad.width),
+            height: ad.isLinear ? ad.vastMediaHeight : Int(ad.height),
+            width: ad.isLinear ? ad.vastMediaWidth : Int(ad.width),
             totalAds: Int(ad.adPodInfo.totalAds),
             adPosition: Int(ad.adPodInfo.adPosition),
             timeOffset: ad.adPodInfo.timeOffset,
             isBumper: ad.adPodInfo.isBumper,
-            podIndex: Int(ad.adPodInfo.podIndex)
-        )
+            podIndex: Int(ad.adPodInfo.podIndex),
+            mediaBitrate: ad.vastMediaBitrate)
     }
 }
