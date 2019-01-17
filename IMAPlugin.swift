@@ -177,6 +177,9 @@ enum IMAState: Int, StateProtocol {
         }
         
         let request = IMAAdsRequest(adTagUrl: self.config.adTagUrl, adDisplayContainer: adDisplayContainer, contentPlayhead: self, userContext: nil)
+        if let vastLoadTimeout = self.config.vastLoadTimeout {
+            request?.vastLoadTimeout = vastLoadTimeout.floatValue
+        }
         // sets the state
         self.stateMachine.set(state: .adsRequested)
         // make sure loader exists otherwise create.

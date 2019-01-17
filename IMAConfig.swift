@@ -35,6 +35,8 @@ import GoogleInteractiveMediaAds
     @objc public var playerType: String = "kaltura-vp-ios"
     @objc public var playerVersion: String?
     
+    @objc public var vastLoadTimeout: NSNumber?
+    
     @objc public var videoControlsOverlays: [UIView]?
     
     // Builders
@@ -89,6 +91,12 @@ import GoogleInteractiveMediaAds
     @discardableResult
     @nonobjc public func set(playerVersion: String) -> Self {
         self.playerVersion = playerVersion
+        return self
+    }
+    
+    @discardableResult
+    @nonobjc public func set(vastLoadTimeout: NSNumber) -> Self {
+        self.vastLoadTimeout = vastLoadTimeout
         return self
     }
     
