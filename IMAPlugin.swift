@@ -68,6 +68,8 @@ enum IMAState: Int, StateProtocol {
     private var requestTimeoutTimer: Timer?
     /// the request timeout interval
     private var requestTimeoutInterval: TimeInterval = IMAPlugin.defaultTimeoutInterval
+    
+    private var adDisplayContainer: IMAAdDisplayContainer?
 
     /************************************************************/
     // MARK: - IMAContentPlayhead
@@ -156,8 +158,18 @@ enum IMAState: Int, StateProtocol {
     func requestAds() {
         guard let playerView = self.player?.view else { return }
         
-        let adDisplayContainer = IMAPlugin.createAdDisplayContainer(forView: playerView, withCompanionView: self.config.companionView)
+        adDisplayContainer = IMAPlugin.createAdDisplayContainer(forView: playerView, withCompanionView: self.config.companionView)
+        
+        if let videoControlsOverlays = self.config?.videoControlsOverlays {
+            for overlay in videoControlsOverlays {
+                adDisplayContainer?.registerVideoControlsOverlay(overlay)
+            }
+        }
+        
         let request = IMAAdsRequest(adTagUrl: self.config.adTagUrl, adDisplayContainer: adDisplayContainer, contentPlayhead: self, userContext: nil)
+        if let vastLoadTimeout = self.config.vastLoadTimeout {
+            request?.vastLoadTimeout = vastLoadTimeout.floatValue
+        }
         // sets the state
         self.stateMachine.set(state: .adsRequested)
         // make sure loader exists otherwise create.
@@ -210,6 +222,8 @@ enum IMAState: Int, StateProtocol {
         self.adsManager = nil
         // reset the state machine
         self.stateMachine.reset()
+        
+        self.adDisplayContainer?.unregisterAllVideoControlsOverlays()
     }
     
     // when play() was used set state to content playing
@@ -329,7 +343,12 @@ enum IMAState: Int, StateProtocol {
             // means all ads have been played so we can destroy the adsManager.
             self.destroyManager()
             self.notify(event: AdEvent.AllAdsCompleted())
-        case .CLICKED: self.notify(event: AdEvent.AdClicked())
+        case .CLICKED:
+            if let clickThroughUrl = event.ad.value(forKey: "clickThroughUrl") as? String {
+                self.notify(event: AdEvent.AdClicked(clickThroughUrl: clickThroughUrl))
+            } else {
+                self.notify(event: AdEvent.AdClicked())
+            }
         case .COMPLETE: self.notify(event: AdEvent.AdComplete())
         case .FIRST_QUARTILE: self.notify(event: AdEvent.AdFirstQuartile())
         case .LOG: self.notify(event: AdEvent.AdLog())
@@ -404,7 +423,7 @@ enum IMAState: Int, StateProtocol {
         }
         
         if let bitrate = self.config?.videoBitrate {
-            self.renderingSettings.bitrate = bitrate
+            self.renderingSettings.bitrate = Int(bitrate)
         }
         
         if let mimeTypes = self.config?.videoMimeTypes {
