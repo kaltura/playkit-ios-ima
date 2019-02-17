@@ -192,20 +192,23 @@ enum IMAState: Int, StateProtocol {
         // notify ads requested
         self.notify(event: AdEvent.AdsRequested(adTagUrl: self.config.adTagUrl))
         // start timeout timer
-        self.requestTimeoutTimer = PKTimer.after(self.requestTimeoutInterval) { [unowned self] _ in
-            if self.adsManager == nil {
+        self.requestTimeoutTimer = PKTimer.after(self.requestTimeoutInterval) { [weak self] _ in
+            
+            guard let strongSelf = self else { return }
+            
+            if strongSelf.adsManager == nil {
                 PKLog.debug("Ads request timed out")
-                switch self.stateMachine.getState() {
-                case .adsRequested: self.delegate?.adsRequestTimedOut(shouldPlay: false)
-                case .adsRequestedAndPlay: self.delegate?.adsRequestTimedOut(shouldPlay: true)
+                switch strongSelf.stateMachine.getState() {
+                case .adsRequested: strongSelf.delegate?.adsRequestTimedOut(shouldPlay: false)
+                case .adsRequestedAndPlay: strongSelf.delegate?.adsRequestTimedOut(shouldPlay: true)
                 default: break // should not receive timeout for any other state
                 }
                 // set state to request failure
-                self.stateMachine.set(state: .adsRequestTimedOut)
+                strongSelf.stateMachine.set(state: .adsRequestTimedOut)
                 
-                self.invalidateRequestTimer()
+                strongSelf.invalidateRequestTimer()
                 // post ads request timeout event
-                self.notify(event: AdEvent.RequestTimedOut())
+                strongSelf.notify(event: AdEvent.RequestTimedOut())
             }
         }
     }
