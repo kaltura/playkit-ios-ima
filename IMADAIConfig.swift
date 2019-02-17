@@ -46,11 +46,12 @@ import GoogleInteractiveMediaAds
     
     // Extra Data
     public var requestTimeoutInterval: TimeInterval = IMAPlugin.defaultTimeoutInterval
+    public var companionView: UIView?
+    public var videoControlsOverlays: [UIView]?
     
     
     public var adAttribution: Bool = true
     public var adCountDown: Bool = true
-    public var videoControlsOverlays: [UIView]?
     public var disablePersonalizedAds: Bool = true // adTagParameters.put("npa", 1);
     public var enableAgeRestriction: Bool = false // adTagParameters.put("tfua", 1);
     

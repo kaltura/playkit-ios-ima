@@ -37,8 +37,8 @@ enum IMAState: Int, StateProtocol {
     case contentPlaying
 }
 
-@objc public class IMAPlugin: BasePlugin, PKPluginWarmUp, PlayerDecoratorProvider, AdsPlugin, IMAAdsLoaderDelegate, IMAAdsManagerDelegate, IMAWebOpenerDelegate, IMAContentPlayhead {
-    
+@objc public class IMAPlugin: BasePlugin, PKPluginWarmUp, PlayerDecoratorProvider, PlayerEngineWrapperProvider, AdsPlugin, IMAAdsLoaderDelegate, IMAAdsManagerDelegate, IMAWebOpenerDelegate, IMAContentPlayhead {
+
     // internal errors for requesting ads
     enum IMAPluginRequestError: Error {
         case missingPlayerView
@@ -48,13 +48,13 @@ enum IMAState: Int, StateProtocol {
     /// the default timeout interval for ads request.
     static let defaultTimeoutInterval: TimeInterval = 5
     
-    weak var dataSource: AdsPluginDataSource? {
+    weak public var dataSource: AdsPluginDataSource? {
         didSet {
             PKLog.debug("data source set")
         }
     }
-    weak var delegate: AdsPluginDelegate?
-    weak var pipDelegate: AVPictureInPictureControllerDelegate?
+    weak public var delegate: AdsPluginDelegate?
+    weak public var pipDelegate: AVPictureInPictureControllerDelegate?
     
     /// The IMA plugin state machine
     private var stateMachine = BasicStateMachine(initialState: IMAState.start, allowTransitionToInitialState: false)
@@ -150,18 +150,26 @@ enum IMAState: Int, StateProtocol {
     /************************************************************/
     
     @objc public func getPlayerDecorator() -> PlayerDecoratorBase? {
-        return AdsEnabledPlayerController(adsPlugin: self)
+        return nil
+    }
+
+    /************************************************************/
+    // MARK: - PlayerEngineWrapperProvider
+    /************************************************************/
+    
+    public func getPlayerEngineWrapper() -> PlayerEngineWrapper? {
+        return AdsPlayerEngineWrapper(adsPlugin: self)
     }
     
     /************************************************************/
     // MARK: - AdsPlugin
     /************************************************************/
     
-    var isAdPlaying: Bool {
+    public var isAdPlaying: Bool {
         return self.stateMachine.getState() == .adsPlaying
     }
     
-    func requestAds() throws {
+    public func requestAds() throws {
         guard let playerView = self.player?.view else { throw IMAPluginRequestError.missingPlayerView }
         guard !self.config.adTagUrl.isEmpty else {
             PKLog.debug("ad tag url is empty... can't request ads")
@@ -192,37 +200,39 @@ enum IMAState: Int, StateProtocol {
         // notify ads requested
         self.notify(event: AdEvent.AdsRequested(adTagUrl: self.config.adTagUrl))
         // start timeout timer
-        self.requestTimeoutTimer = PKTimer.after(self.requestTimeoutInterval) { [unowned self] _ in
-            if self.adsManager == nil {
+        self.requestTimeoutTimer = PKTimer.after(self.requestTimeoutInterval) { [weak self] _ in
+            guard let strongSelf = self else { return }
+            
+            if strongSelf.adsManager == nil {
                 PKLog.debug("Ads request timed out")
-                switch self.stateMachine.getState() {
-                case .adsRequested: self.delegate?.adsRequestTimedOut(shouldPlay: false)
-                case .adsRequestedAndPlay: self.delegate?.adsRequestTimedOut(shouldPlay: true)
+                switch strongSelf.stateMachine.getState() {
+                case .adsRequested: strongSelf.delegate?.adsRequestTimedOut(shouldPlay: false)
+                case .adsRequestedAndPlay: strongSelf.delegate?.adsRequestTimedOut(shouldPlay: true)
                 default: break // should not receive timeout for any other state
                 }
                 // set state to request failure
-                self.stateMachine.set(state: .adsRequestTimedOut)
+                strongSelf.stateMachine.set(state: .adsRequestTimedOut)
                 
-                self.invalidateRequestTimer()
+                strongSelf.invalidateRequestTimer()
                 // post ads request timeout event
-                self.notify(event: AdEvent.RequestTimedOut())
+                strongSelf.notify(event: AdEvent.RequestTimedOut())
             }
         }
     }
     
-    func resume() {
+    public func resume() {
         self.adsManager?.resume()
     }
     
-    func pause() {
+    public func pause() {
         self.adsManager?.pause()
     }
     
-    func contentComplete() {
+    public func contentComplete() {
         IMAPlugin.loader?.contentComplete()
     }
     
-    func destroyManager() {
+    public func destroyManager() {
         self.invalidateRequestTimer()
         self.adsManager?.delegate = nil
         self.adsManager?.destroy()
@@ -237,11 +247,11 @@ enum IMAState: Int, StateProtocol {
     }
     
     // when play() was used set state to content playing
-    func didPlay() {
+    public func didPlay() {
         self.stateMachine.set(state: .contentPlaying)
     }
     
-    func didRequestPlay(ofType type: AdsEnabledPlayerController.PlayType) {
+    public func didRequestPlay(ofType type: PlayType) {
         switch self.stateMachine.getState() {
         case .adsLoaded: self.startAd()
         case .adsRequested: self.stateMachine.set(state: .adsRequestedAndPlay)
@@ -250,7 +260,7 @@ enum IMAState: Int, StateProtocol {
         }
     }
     
-    func didEnterBackground() {
+    public func didEnterBackground() {
         switch self.stateMachine.getState() {
         case .adsRequested, .adsRequestedAndPlay:
             self.destroyManager()
@@ -259,7 +269,7 @@ enum IMAState: Int, StateProtocol {
         }
     }
     
-    func willEnterForeground() {
+    public func willEnterForeground() {
         if self.stateMachine.getState() == .startAndRequest {
             try? self.requestAds()
         }
