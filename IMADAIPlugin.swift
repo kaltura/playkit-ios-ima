@@ -3,12 +3,14 @@ import GoogleInteractiveMediaAds
 import PlayKit
 import PlayKitUtils
 
-@objc public class IMADAIPlugin: BasePlugin, PKPluginWarmUp, IMAAdsLoaderDelegate, IMAStreamManagerDelegate, IMAWebOpenerDelegate, AdsPlugin, PlayerEngineWrapperProvider {
+@objc public class IMADAIPlugin: BasePlugin, PKPluginWarmUp, IMAAdsLoaderDelegate, IMAStreamManagerDelegate, IMAWebOpenerDelegate, AdsDAIPlugin, PlayerEngineWrapperProvider, IMAAVPlayerVideoDisplayDelegate {
     
     // Internal errors for requesting ads
     enum IMADAIPluginRequestError: Error {
         case missingPlayerView
         case missingVideoDisplay
+        case missingLiveData
+        case missingVODData
     }
     
     /// The IMA DAI plugin state machine
@@ -16,9 +18,9 @@ import PlayKitUtils
     
     private static var adsLoader: IMAAdsLoader!
     // We must have config, an error will be thrown otherwise
-    private var config: IMADAIConfig!
+    private var pluginConfig: IMADAIConfig!
     
-    private var videoDisplay: IMAAVPlayerVideoDisplay?
+    private var videoDisplay: IMAVideoDisplay?
     private var streamManager: IMAStreamManager?
     private var renderingSettings: IMAAdsRenderingSettings! = IMAAdsRenderingSettings()
     
@@ -29,7 +31,20 @@ import PlayKitUtils
 
     private var adDisplayContainer: IMAAdDisplayContainer?
     
-    private var cuepoints: [IMACuepoint]?
+    private var cuepoints: [IMACuepoint] = [] {
+        didSet {
+            if cuepoints.count > 0 {
+                var adDAICuePoints: [CuePoint] = []
+                for imaCuepoint in cuepoints {
+                    let cuePoint = CuePoint(startTime: imaCuepoint.startTime, endTime: imaCuepoint.endTime, played: imaCuepoint.isPlayed)
+                    adDAICuePoints.append(cuePoint)
+                }
+                
+                self.notify(event: AdEvent.AdCuePointsUpdate(adDAICuePoints: PKAdDAICuePoints(adDAICuePoints)))
+            }
+        }
+    }
+    private var currentCuepoint: IMACuepoint?
     
     public var isAdPlaying: Bool {
         return self.stateMachine.getState() == .adsPlaying
@@ -38,12 +53,6 @@ import PlayKitUtils
     public var isContentPlaying: Bool {
         return self.stateMachine.getState() == .contentPlaying
     }
-    
-    // Maintains seeking status for snapback.
-    private var seekStartTime: CMTime = kCMTimeZero
-    private var seekEndTime: CMTime = kCMTimeZero
-    private var snapbackMode: Bool = false
-    private var currentlySeeking: Bool = false
     
     private var adsDAIPlayerEngineWrapper: AdsDAIPlayerEngineWrapper?
     
@@ -99,7 +108,7 @@ import PlayKitUtils
     }
     
     private func createAdsLoader() {
-        self.setupLoader(with: self.config)
+        self.setupLoader(with: self.pluginConfig)
         IMADAIPlugin.adsLoader.contentComplete()
         IMADAIPlugin.adsLoader.delegate = self
     }
@@ -117,30 +126,29 @@ import PlayKitUtils
     private func createRenderingSettings() {
         self.renderingSettings.webOpenerDelegate = self
         
-        if let mimeTypes = self.config?.videoMimeTypes {
+        if let mimeTypes = self.pluginConfig?.videoMimeTypes {
             self.renderingSettings.mimeTypes = mimeTypes
         }
         
-        if let bitrate = self.config?.videoBitrate {
+        if let bitrate = self.pluginConfig?.videoBitrate {
             self.renderingSettings.bitrate = Int(bitrate)
         }
         
-        if let loadVideoTimeout = self.config.loadVideoTimeout {
+        if let loadVideoTimeout = self.pluginConfig.loadVideoTimeout {
             self.renderingSettings.loadVideoTimeout = loadVideoTimeout
         }
         
         if let playAdsAfterTime = self.dataSource?.playAdsAfterTime, playAdsAfterTime > 0 {
-            self.renderingSettings.playAdsAfterTime = playAdsAfterTime
+            self.renderingSettings.playAdsAfterTime = 20//playAdsAfterTime
         }
-        self.renderingSettings.playAdsAfterTime = 20
         
-        if let uiElements = self.config.uiElements {
+        if let uiElements = self.pluginConfig.uiElements {
             self.renderingSettings.uiElements = uiElements
         }
         
-        self.renderingSettings.disableUi = self.config.disableUI
+        self.renderingSettings.disableUi = self.pluginConfig.disableUI
         
-        if let webOpenerPresentingController = self.config?.webOpenerPresentingController {
+        if let webOpenerPresentingController = self.pluginConfig?.webOpenerPresentingController {
             self.renderingSettings.webOpenerPresentingController = webOpenerPresentingController
         }
     }
@@ -171,7 +179,14 @@ import PlayKitUtils
 //    }
     
     private func isAdPlayable() -> Bool {
+        guard let currentTime = self.player?.currentTime else { return true }
         
+        for cuepoint in cuepoints {
+            if cuepoint.startTime >= currentTime && cuepoint.endTime <= currentTime {
+                currentCuepoint = cuepoint
+                return !cuepoint.isPlayed
+            }
+        }
         
         return true
     }
@@ -227,7 +242,7 @@ import PlayKitUtils
         
         try super.init(player: player, pluginConfig: pluginConfig, messageBus: messageBus)
         
-        self.config = imaDAIConfig
+        self.pluginConfig = imaDAIConfig
         self.requestTimeoutInterval = imaDAIConfig.requestTimeoutInterval
         if IMADAIPlugin.adsLoader == nil {
             self.setupLoader(with: imaDAIConfig)
@@ -247,13 +262,13 @@ import PlayKitUtils
         super.onUpdateConfig(pluginConfig: pluginConfig)
         
         if let adsConfig = pluginConfig as? IMADAIConfig {
-            self.config = adsConfig
+            self.pluginConfig = adsConfig
         }
     }
     
     public override func destroy() {
-        super.destroy()
         self.destroyManager()
+        super.destroy()
     }
     
     /************************************************************/
@@ -309,26 +324,31 @@ import PlayKitUtils
         
         switch event.type {
         case .CUEPOINTS_CHANGED:
-            // TODO: CUEPOINTS_CHANGED
             guard let adData = event.adData else { return }
             guard let cuepoints = adData["cuepoints"] else { return }
             guard let cuepointsArray = cuepoints as? [IMACuepoint] else { return }
             self.cuepoints = cuepointsArray
         case .STREAM_LOADED:
             self.notify(event: AdEvent.StreamLoaded())
-            if self.config.streamType == .vod {
+            if self.pluginConfig.streamType == .vod {
                 // TODO: check if it starts from the start time.
-                if let streamTime = self.streamManager?.streamTime(forContentTime: self.renderingSettings.playAdsAfterTime) {
-                    self.adsDAIPlayerEngineWrapper?.seek(to: streamTime)
+                if let streamTime = self.streamManager?.streamTime(forContentTime: self.renderingSettings.playAdsAfterTime), streamTime > 0 {
+                    self.player?.seek(to: streamTime)
                 }
             }
             self.stateMachine.set(state: .contentPlaying)
         case .STREAM_STARTED:
             self.notify(event: AdEvent.StreamStarted())
         case .AD_BREAK_STARTED:
-            self.stateMachine.set(state: .adsPlaying)
-            self.notify(event: AdEvent.AdDidRequestContentPause())
-            self.notify(event: AdEvent.AdBreakStarted())
+            if isAdPlayable() {
+                self.stateMachine.set(state: .adsPlaying)
+                self.notify(event: AdEvent.AdDidRequestContentPause())
+                self.notify(event: AdEvent.AdBreakStarted())
+            } else {
+                if let newTime = self.currentCuepoint?.endTime {
+                    self.player?.seek(to: newTime)
+                }
+            }
         case .LOADED:
             let adEvent = event.ad != nil ? AdEvent.AdLoaded(adInfo: PKAdInfo(ad: event.ad)) : AdEvent.AdLoaded()
             self.notify(event: adEvent)
@@ -357,18 +377,10 @@ import PlayKitUtils
             self.notify(event: AdEvent.AdSkipped())
         case .COMPLETE:
             self.notify(event: AdEvent.AdComplete())
-            guard let adData = event.adData else { return }
-            guard let cuepoints = adData["cuepoints"] else { return }
-            guard let cuepointsArray = cuepoints as? [IMACuepoint] else { return }
-            self.cuepoints = cuepointsArray
         case .AD_BREAK_ENDED:
             self.stateMachine.set(state: .contentPlaying)
             self.notify(event: AdEvent.AdBreakEnded())
             self.notify(event: AdEvent.AdDidRequestContentResume())
-            guard let adData = event.adData else { return }
-            guard let cuepoints = adData["cuepoints"] else { return }
-            guard let cuepointsArray = cuepoints as? [IMACuepoint] else { return }
-            self.cuepoints = cuepointsArray
         case .LOG:
             break
         default:
@@ -388,12 +400,12 @@ import PlayKitUtils
                               adPosition: Int,
                               totalAds: Int,
                               adBreakDuration: TimeInterval) {
-        print("Nilit: streamManager adDidProgressToTime \(time) adDuration \(adDuration) adPosition \(adPosition) totalAds \(totalAds) adBreakDuration \(adBreakDuration)")
+//        print("Nilit: streamManager adDidProgressToTime \(time) adDuration \(adDuration) adPosition \(adPosition) totalAds \(totalAds) adBreakDuration \(adBreakDuration)")
         self.notify(event: AdEvent.AdDidProgressToTime(mediaTime: time, totalTime: adDuration))
     }
     
     /************************************************************/
-    // MARK: - AdsPlugin
+    // MARK: - AdsDAIPlugin
     /************************************************************/
     
     public func requestAds() throws {
@@ -401,39 +413,52 @@ import PlayKitUtils
             throw IMADAIPluginRequestError.missingPlayerView
         }
         
-        adDisplayContainer = IMADAIPlugin.createAdDisplayContainer(forView: playerView, withCompanionView: self.config.companionView)
+        adDisplayContainer = IMADAIPlugin.createAdDisplayContainer(forView: playerView, withCompanionView: self.pluginConfig.companionView)
         
-        if let videoControlsOverlays = self.config?.videoControlsOverlays {
+        if let videoControlsOverlays = self.pluginConfig?.videoControlsOverlays {
             for overlay in videoControlsOverlays {
                 adDisplayContainer?.registerVideoControlsOverlay(overlay)
             }
         }
         
-        var imaPlayerVideoDisplay: IMAVideoDisplay?
-        switch adsDAIPlayerEngineWrapper?.playerEngine {
-        case is AVPlayerWrapper:
-            guard let avPlayerWrapper = adsDAIPlayerEngineWrapper?.playerEngine as? AVPlayerWrapper else { throw IMADAIPluginRequestError.missingVideoDisplay }
-            imaPlayerVideoDisplay = IMAAVPlayerVideoDisplay(avPlayer: avPlayerWrapper.currentPlayer)
-        default:
-            break
-        }
+//        var imaPlayerVideoDisplay: IMAVideoDisplay?
+//        switch adsDAIPlayerEngineWrapper?.playerEngine {
+//        case is AVPlayerWrapper:
+//            guard let avPlayerWrapper = adsDAIPlayerEngineWrapper?.playerEngine as? AVPlayerWrapper else { throw IMADAIPluginRequestError.missingVideoDisplay }
+//            if let imaAVPlayerVideoDisplay = IMAAVPlayerVideoDisplay(avPlayer: avPlayerWrapper.currentPlayer) {
+////                imaAVPlayerVideoDisplay.avPlayerVideoDisplayDelegate = self
+//                imaPlayerVideoDisplay = imaAVPlayerVideoDisplay
+//            }
+//        default:
+//            break
+//        }
+//
+//        guard let videoDisplay = imaPlayerVideoDisplay else { throw IMADAIPluginRequestError.missingVideoDisplay }
+//        self.videoDisplay = videoDisplay
         
-        guard let videoDisplay = imaPlayerVideoDisplay else { throw IMADAIPluginRequestError.missingVideoDisplay }
+        guard let adsDAIPlayerEngineWrapper = self.adsDAIPlayerEngineWrapper else { throw IMADAIPluginRequestError.missingVideoDisplay }
+        let imaPlayerVideoDisplay = PKIMAVideoDisplay(adsDAIPlayerEngineWrapper: adsDAIPlayerEngineWrapper)
+//        imaPlayerVideoDisplay.delegate = self
+        self.videoDisplay = imaPlayerVideoDisplay
         
         var request: IMAStreamRequest
-        switch config.streamType {
+        switch pluginConfig.streamType {
         case .live:
-            request = IMALiveStreamRequest(assetKey: config.assetKey,
+            guard let assetKey = pluginConfig.assetKey else { throw IMADAIPluginRequestError.missingLiveData }
+            
+            request = IMALiveStreamRequest(assetKey: assetKey,
                                            adDisplayContainer: adDisplayContainer,
                                            videoDisplay: videoDisplay)
         case .vod:
-            request = IMAVODStreamRequest(contentSourceID: config.contentSourceId,
-                                          videoID: config.videoId,
+            guard let contentSourceId = pluginConfig.contentSourceId, let videoId = pluginConfig.videoId else { throw IMADAIPluginRequestError.missingVODData }
+            
+            request = IMAVODStreamRequest(contentSourceID: contentSourceId,
+                                          videoID: videoId,
                                           adDisplayContainer: adDisplayContainer,
                                           videoDisplay: videoDisplay)
         }
         
-        request.apiKey = config.apiKey
+        request.apiKey = pluginConfig.apiKey
         
         self.stateMachine.set(state: .adsRequested)
         
@@ -497,6 +522,27 @@ import PlayKitUtils
         }
     }
     
+    public func contentTime(forStreamTime streamTime: TimeInterval) -> TimeInterval {
+        return streamManager?.contentTime(forStreamTime: streamTime) ?? streamTime
+    }
+    
+    public func streamTime(forContentTime contentTime: TimeInterval) -> TimeInterval {
+        return streamManager?.streamTime(forContentTime: contentTime) ?? contentTime
+    }
+    
+    public func previousCuepoint(forStreamTime streamTime: TimeInterval) -> CuePoint? {
+        guard let imaCuePoint = streamManager?.previousCuepoint(forStreamTime: streamTime) else { return nil }
+        return CuePoint(startTime: imaCuePoint.startTime, endTime: imaCuePoint.endTime, played: imaCuePoint.isPlayed)
+    }
+    
+    public func canPlayAd(atStreamTime streamTime: TimeInterval) -> (canPlay: Bool, endTime: TimeInterval) {
+        let nextStreamTime = streamTime + 1
+        guard let imaCuePoint = streamManager?.previousCuepoint(forStreamTime: nextStreamTime) else {
+            return (true, self.contentTime(forStreamTime: streamTime))
+        }
+        return (!imaCuePoint.isPlayed, self.contentTime(forStreamTime: imaCuePoint.endTime))
+    }
+    
     public func didEnterBackground() {
         switch self.stateMachine.getState() {
         case .adsRequested, .adsRequestedAndPlay:
@@ -511,5 +557,19 @@ import PlayKitUtils
         if self.stateMachine.getState() == .startAndRequest {
             try? self.requestAds()
         }
+    }
+    
+    /************************************************************/
+    // MARK: - IMAAVPlayerVideoDisplayDelegate
+    /************************************************************/
+    
+    public func avPlayerVideoDisplay(_ avPlayerVideoDisplay: IMAAVPlayerVideoDisplay!, willLoadStreamAsset avUrlAsset: AVURLAsset!) {
+        guard let mediaConfig = adsDAIPlayerEngineWrapper?.mediaConfig else { return }
+        guard let sources = mediaConfig.mediaEntry.sources else { return }
+        for source in sources {
+            source.contentUrl = avUrlAsset.url
+        }
+        
+//        self.player?.prepare(mediaConfig)
     }
 }
