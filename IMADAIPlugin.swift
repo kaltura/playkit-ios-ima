@@ -535,12 +535,12 @@ import PlayKitUtils
         return CuePoint(startTime: imaCuePoint.startTime, endTime: imaCuePoint.endTime, played: imaCuePoint.isPlayed)
     }
     
-    public func canPlayAd(atStreamTime streamTime: TimeInterval) -> (canPlay: Bool, endTime: TimeInterval) {
+    public func canPlayAd(atStreamTime streamTime: TimeInterval) -> (canPlay: Bool, duration: TimeInterval) {
         let nextStreamTime = streamTime + 1
         guard let imaCuePoint = streamManager?.previousCuepoint(forStreamTime: nextStreamTime) else {
-            return (true, self.contentTime(forStreamTime: streamTime))
+            return (true, 0)
         }
-        return (!imaCuePoint.isPlayed, self.contentTime(forStreamTime: imaCuePoint.endTime))
+        return (!imaCuePoint.isPlayed, imaCuePoint.endTime - imaCuePoint.startTime)
     }
     
     public func didEnterBackground() {

@@ -9,8 +9,13 @@ import PlayKit
     public var delegate: IMAVideoDisplayDelegate!
     private var adsDAIPlayerEngineWrapper: AdsDAIPlayerEngineWrapper
 
+    private var isAdPlaying: Bool = false
+    private var adCurrentTime: TimeInterval = 0
+    private var adStartTime: TimeInterval = 0
+    private var adDuration: TimeInterval = 0
+    
     private var adTimer: Timer?
-    private var interval: TimeInterval = 10
+    private var adTimerInterval: TimeInterval = 0.2
 
     init(adsDAIPlayerEngineWrapper: AdsDAIPlayerEngineWrapper) {
         self.adsDAIPlayerEngineWrapper = adsDAIPlayerEngineWrapper
@@ -20,66 +25,9 @@ import PlayKit
         delegate = self
     }
     
-    public var volume: Float {
-        get {
-            return adsDAIPlayerEngineWrapper.volume
-        }
-        set {
-            adsDAIPlayerEngineWrapper.volume = newValue
-        }
-    }
-    
-    public func loadStream(_ streamURL: URL!, withSubtitles subtitles: [Any]!) {
-        adsDAIPlayerEngineWrapper.loadStream(streamURL)
-    }
-    
-    public func load(_ url: URL!) {
-        adsDAIPlayerEngineWrapper.loadStream(url)
-    }
-    
-    public func play() {
-//        adsDAIPlayerEngineWrapper.play()
-//        adsDAIPlayerEngineWrapper.videoDisplayDidPlay(self)
-        // TODO: is playing ad? -> send
-//        if adsDAIPlayerEngineWrapper.isPlaying {
-        
-//            delegate.videoDisplayDidPlay(self)
-//        }
-    }
-    
-    public func pause() {
-//        adsDAIPlayerEngineWrapper.pause()
-//        adsDAIPlayerEngineWrapper.pause()
-//        if !adsDAIPlayerEngineWrapper.isPlaying {
-//            delegate.videoDisplayDidPause(self)
-//        }
-    }
-    
-    public func reset() {
-        
-    }
-    
-    public func seekStream(toTime time: TimeInterval) {
-        adsDAIPlayerEngineWrapper.seek(to: time)
-    }
-    
-    public var currentMediaTime: TimeInterval {
-        get {
-            return adsDAIPlayerEngineWrapper.currentTime
-        }
-    }
-    
-    public var totalMediaTime: TimeInterval {
-        return adsDAIPlayerEngineWrapper.duration
-    }
-    
-    public var bufferedMediaTime: TimeInterval {
-        return 0
-    }
-    
-    public var isPlaying: Bool {
-        return adsDAIPlayerEngineWrapper.isPlaying
-    }
+    // ********************************
+    // MARK: - NSObject
+    // ********************************
     
     public override func isEqual(_ object: Any?) -> Bool {
         
@@ -153,17 +101,125 @@ import PlayKit
         return "adsDAIPlayerEngineWrapper: \(adsDAIPlayerEngineWrapper)\n"
     }
     
+    // ********************************
+    // MARK: - Private Methods
+    // ********************************
+    
+    @objc private func adTimerFired() {
+        guard let currentPosition = adsDAIPlayerEngineWrapper.playerEngine?.currentPosition else { return }
+        adCurrentTime = currentPosition - adStartTime
+        print("Nilit: \(currentPosition)")
+        if currentPosition > adStartTime, adCurrentTime < adDuration {
+            print("Nilit: \(adCurrentTime) / \(adDuration)")
+            delegate.videoDisplay(self, didProgressWithMediaTime: currentPosition, totalTime: adDuration)
+        }
+    }
+    
+    // ********************************
+    // MARK: - IMAVideoDisplay
+    // ********************************
+    
+    public var volume: Float {
+        get {
+            return adsDAIPlayerEngineWrapper.volume
+        }
+        set {
+            adsDAIPlayerEngineWrapper.volume = newValue
+            delegate.videoDisplay(self, volumeChangedTo: NSNumber(value: newValue))
+        }
+    }
+    
+    public func loadStream(_ streamURL: URL!, withSubtitles subtitles: [Any]!) {
+        adsDAIPlayerEngineWrapper.loadStream(streamURL)
+    }
+    
+    public func load(_ url: URL!) {
+        adsDAIPlayerEngineWrapper.loadStream(url)
+    }
+    
+    public func play() {
+        print("Nilit: play called from IMA")
+        // Called to inform the VideoDisplay to play.
+        adsDAIPlayerEngineWrapper.play()
+    }
+    
+    public func pause() {
+        print("Nilit: pause called from IMA")
+        // Called to inform the VideoDisplay to pause.
+        adsDAIPlayerEngineWrapper.pause()
+    }
+    
+    public func reset() {
+        print("Nilit: reset called from IMA")
+        // Called to remove all video assets from the player.
+        
+        isAdPlaying = false
+        adStartTime = 0
+        adDuration = 0
+        adCurrentTime = 0
+        adTimer?.invalidate()
+        adTimer = nil
+    }
+    
+    public func seekStream(toTime time: TimeInterval) {
+        print("Nilit: seek called from IMA")
+        // Called to inform that the stream needs to be seeked to the given time.
+        adsDAIPlayerEngineWrapper.seek(to: time)
+    }
+    
+    // ********************************
+    // MARK: - IMAAdPlaybackInfo
+    // ********************************
+    
+    public var currentMediaTime: TimeInterval {
+        print("Nilit: currentMediaTime called from IMA")
+        // The current media time of the ad, or 0 if no ad loaded.
+        return adCurrentTime
+    }
+    
+    public var totalMediaTime: TimeInterval {
+        print("Nilit: totalMediaTime called from IMA")
+        // The total media time of the ad, or 0 if no ad loaded.
+        return adDuration
+    }
+    
+    public var bufferedMediaTime: TimeInterval {
+        print("Nilit: bufferedMediaTime called from IMA")
+        // The buffered media time of the ad, or 0 if no ad loaded.
+        return adDuration
+        // TODO: Need to return the correct buffered time
+    }
+    
+    public var isPlaying: Bool {
+        print("Nilit: isPlaying called from IMA")
+        // Whether or not the ad is currently playing.
+        return isAdPlaying
+    }
+    
+    // ********************************************
     // MARK: - AdsDAIPlayerEngineWrapperDelegate
+    // ********************************************
     
     public func streamStarted() {
         delegate.videoDisplayDidStart(self)
     }
     
-    public func adPlaying() {
-//        delegate.videoDisplayDidLoad(self)
-        delegate.videoDisplayDidStart(self)
+    public func adPlaying(startTime: TimeInterval, duration: TimeInterval) {
+        isAdPlaying = true
+        adStartTime = startTime
+        print("Nilit: adStartTime: \(adStartTime)")
+        adDuration = duration
+        adCurrentTime = 0
         
-//        adTimer = 
+        delegate.videoDisplayDidLoad(self)
+        delegate.videoDisplayDidStart(self)
+            
+        adTimer = Timer.scheduledTimer(timeInterval: adTimerInterval,
+                                       target: self,
+                                       selector: #selector(adTimerFired),
+                                       userInfo: nil,
+                                       repeats: true)
+        adTimer?.fire()
     }
     
     public func adPaused() {
@@ -173,9 +229,23 @@ import PlayKit
     public func adResumed() {
         delegate.videoDisplayDidResume(self)
     }
+    
+    public func adCompleted() {
+        let endTime = adStartTime + adDuration
+        delegate.videoDisplay(self, didProgressWithMediaTime: endTime, totalTime: adDuration)
+        delegate.videoDisplayDidComplete(self)
+        isAdPlaying = false
+        adStartTime = 0
+        adDuration = 0
+        adCurrentTime = 0
+        adTimer?.invalidate()
+        adTimer = nil
+    }
 }
 
+// **********************************
 // MARK: - IMAVideoDisplayDelegate
+// **********************************
 
 extension PKIMAVideoDisplay: IMAVideoDisplayDelegate {
     // We are only calling these function so that IMA can trigger their events.
@@ -185,11 +255,9 @@ extension PKIMAVideoDisplay: IMAVideoDisplayDelegate {
     }
     
     public func videoDisplayDidPause(_ videoDisplay: IMAVideoDisplay!) {
-        
     }
     
     public func videoDisplayDidResume(_ videoDisplay: IMAVideoDisplay!) {
-        
     }
     
     public func videoDisplayDidStart(_ videoDisplay: IMAVideoDisplay!) {
@@ -197,38 +265,29 @@ extension PKIMAVideoDisplay: IMAVideoDisplayDelegate {
     }
     
     public func videoDisplayDidComplete(_ videoDisplay: IMAVideoDisplay!) {
-        
     }
     
     public func videoDisplayDidClick(_ videoDisplay: IMAVideoDisplay!) {
-    
     }
     
     public func videoDisplay(_ videoDisplay: IMAVideoDisplay!, didReceiveError error: Error!) {
-        
     }
     
     public func videoDisplayDidSkip(_ videoDisplay: IMAVideoDisplay!) {
-        
     }
     
     public func videoDisplayDidShowSkip(_ videoDisplay: IMAVideoDisplay!) {
-        
     }
     
     public func videoDisplayDidLoad(_ videoDisplay: IMAVideoDisplay!) {
-        
     }
     
     public func videoDisplay(_ videoDisplay: IMAVideoDisplay!, volumeChangedTo volume: NSNumber!) {
-        
     }
     
     public func videoDisplay(_ videoDisplay: IMAVideoDisplay!, didProgressWithMediaTime mediaTime: TimeInterval, totalTime duration: TimeInterval) {
-        
     }
     
     public func videoDisplay(_ videoDisplay: IMAVideoDisplay!, didReceiveTimedMetadata metadata: [String : String]!) {
-        
     }
 }
