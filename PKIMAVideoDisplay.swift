@@ -112,6 +112,11 @@ import PlayKit
         if currentPosition > adStartTime, adCurrentTime < adDuration {
             print("Nilit: \(adCurrentTime) / \(adDuration)")
             delegate.videoDisplay(self, didProgressWithMediaTime: currentPosition, totalTime: adDuration)
+        } else
+        
+        // The adCompleted func was not called, apparently this is a PostRoll
+        if currentPosition >= (adStartTime + adDuration) {
+            adCompleted()
         }
     }
     
@@ -231,6 +236,10 @@ import PlayKit
     }
     
     public func adCompleted() {
+        print("Nilit: adCompleted func")
+        adTimer?.invalidate()
+        adTimer = nil
+        
         let endTime = adStartTime + adDuration
         delegate.videoDisplay(self, didProgressWithMediaTime: endTime, totalTime: adDuration)
         delegate.videoDisplayDidComplete(self)
@@ -238,8 +247,6 @@ import PlayKit
         adStartTime = 0
         adDuration = 0
         adCurrentTime = 0
-        adTimer?.invalidate()
-        adTimer = nil
     }
 }
 
