@@ -160,11 +160,6 @@ import PlayKitUtils
         }
     }
     
-    private func initStreamManager() {
-        streamManager?.initialize(with: self.renderingSettings)
-        PKLog.debug("Stream manager set")
-    }
-    
     private func notify(event: AdEvent) {
         delegate?.adsPlugin(self, didReceive: event)
         messageBus?.post(event)
@@ -413,12 +408,7 @@ import PlayKitUtils
         
         createRenderingSettings()
         
-        // Initialize on the stream manager starts the ads loading process, we want to initialize it only after play.
-        // Machine state `adsLoaded` is when ads request succeeded but play haven't been received yet.
-        // We don't want to initialize the stream manager until play() has been performed.
-        if stateMachine.getState() == .adsLoadedAndPlay {
-            initStreamManager()
-        }
+        streamManager?.initialize(with: renderingSettings)
     }
     
     public func adsLoader(_ loader: IMAAdsLoader!, failedWith adErrorData: IMAAdLoadingErrorData!) {

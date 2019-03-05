@@ -151,7 +151,8 @@ import PlayKit
     public func pause() {
         print("Nilit: pause called from IMA")
         // Called to inform the VideoDisplay to pause.
-        adsDAIPlayerEngineWrapper.pause()
+        // Calling the playerEngine.pause() because IMA already sent the 'Pause' event
+        adsDAIPlayerEngineWrapper.playerEngine?.pause()
     }
     
     public func reset() {
