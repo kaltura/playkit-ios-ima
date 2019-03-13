@@ -89,6 +89,8 @@ import PlayKitUtils
     
     public override func destroy() {
         self.destroyManager()
+        self.messageBus?.removeObserver(self, events: [PlayerEvent.ended])
+        
         super.destroy()
     }
     
