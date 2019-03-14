@@ -9,7 +9,11 @@
 // ===================================================================================================
 
 import Foundation
+#if os(iOS)
 import GoogleInteractiveMediaAds
+#elseif os(tvOS)
+import InteractiveMediaAds
+#endif
 import PlayKit
 
 /// `IMAPluginError` used to wrap an `IMAAdError` and provide converation to `NSError`

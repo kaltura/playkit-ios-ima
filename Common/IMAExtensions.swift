@@ -10,14 +10,18 @@
 
 import Foundation
 
+#if os(iOS)
 import GoogleInteractiveMediaAds
+#elseif os(tvOS)
+import InteractiveMediaAds
+#endif
 import PlayKit
 
-extension IMAAdsManager {
-    func getAdCuePoints() -> PKAdCuePoints {
-        return PKAdCuePoints(cuePoints: self.adCuePoints as? [TimeInterval] ?? [])
-    }
-}
+//extension IMAAdsManager {
+//    func getAdCuePoints() -> PKAdCuePoints {
+//        return PKAdCuePoints(cuePoints: self.adCuePoints as? [TimeInterval] ?? [])
+//    }
+//}
 
 extension PKAdInfo {
     convenience init(ad: IMAAd) {
@@ -37,5 +41,14 @@ extension PKAdInfo {
             isBumper: ad.adPodInfo.isBumper,
             podIndex: Int(ad.adPodInfo.podIndex),
             mediaBitrate: ad.vastMediaBitrate)
+    }
+}
+
+extension IMAAd {
+    var isSkippable: Bool {
+        return false
+    }
+    var contentType: String {
+        return ""
     }
 }

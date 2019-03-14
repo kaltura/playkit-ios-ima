@@ -1,6 +1,11 @@
 
 import Foundation
+
+#if os(iOS)
 import GoogleInteractiveMediaAds
+#elseif os(tvOS)
+import InteractiveMediaAds
+#endif
 
 @objc public enum PKIMADAIStreamType: Int, CustomStringConvertible {
     case vod
