@@ -304,7 +304,7 @@ import PlayKitUtils
             // TODO: know where we are and set state
             delegate?.play(type)
         default:
-            print("Nilit: didRequestPlay, take care of \(self.stateMachine.getState())")
+//            print("Nilit: didRequestPlay, take care of \(self.stateMachine.getState())")
             delegate?.play(type)
         }
     }
@@ -390,7 +390,7 @@ import PlayKitUtils
     /************************************************************/
     
     public func adsLoader(_ loader: IMAAdsLoader!, adsLoadedWith adsLoadedData: IMAAdsLoadedData!) {
-        print("Nilit: IMADAIPlugin adsLoader adsLoadedData")
+//        print("Nilit: IMADAIPlugin adsLoader adsLoadedData")
 //        self.loaderRetries = IMAPlugin.loaderRetryCount
         
         switch stateMachine.getState() {
@@ -427,7 +427,7 @@ import PlayKitUtils
     /************************************************************/
     
     public func streamManager(_ streamManager: IMAStreamManager!, didReceive event: IMAAdEvent!) {
-        print("Nilit: Stream manager event: \(String(describing: event.typeString))")
+//        print("Nilit: Stream manager event: \(String(describing: event.typeString))")
         PKLog.trace("Stream manager event: " + event.typeString)
 //        let currentState = self.stateMachine.getState()
         
