@@ -76,6 +76,9 @@ enum IMAState: Int, StateProtocol {
     private var requestTimeoutInterval: TimeInterval = IMAPlugin.defaultTimeoutInterval
     
     private var adDisplayContainer: IMAAdDisplayContainer?
+    
+    private var pkAdInfo: PKAdInfo?
+    private var contentEndedNeedToPlayPostroll: Bool = false
 
     /************************************************************/
     // MARK: - IMAContentPlayhead
@@ -124,7 +127,30 @@ enum IMAState: Int, StateProtocol {
         IMAPlugin.loader.delegate = self
         
         self.messageBus?.addObserver(self, events: [PlayerEvent.ended]) { [weak self] event in
-            self?.contentComplete()
+            guard let strongSelf = self else { return }
+            print("Nilit: PlayerEvent.ended \(strongSelf.pkAdInfo?.positionType.description ?? "nil")")
+            
+            guard let adCuePoints = strongSelf.adsManager?.adCuePoints, adCuePoints.count > 1 else {
+                // There is only one ad
+                strongSelf.contentComplete()
+                return
+            }
+            
+            guard adCuePoints.last as? NSNumber == -1 else {
+                // There is no Post-roll
+                strongSelf.contentComplete()
+                return
+            }
+            
+            // There is a Post-roll
+            let prePostRoll = adCuePoints[adCuePoints.count - 2] as? NSNumber
+            print("Nilit: \(prePostRoll?.doubleValue)")
+            if strongSelf.pkAdInfo?.timeOffset != prePostRoll?.doubleValue {
+                // Last Mid-roll wasn't played, need to wait for it
+                strongSelf.contentEndedNeedToPlayPostroll = true
+            } else {
+                strongSelf.contentComplete()
+            }
         }
     }
     
@@ -222,6 +248,7 @@ enum IMAState: Int, StateProtocol {
     }
     
     func contentComplete() {
+        print("Nilit: contentComplete")
         IMAPlugin.loader?.contentComplete()
     }
     
@@ -340,7 +367,13 @@ enum IMAState: Int, StateProtocol {
             if shouldDiscard(ad: event.ad, currentState: currentState) {
                 self.discardAdBreak(adsManager: adsManager)
             } else {
-                let adEvent = event.ad != nil ? AdEvent.AdLoaded(adInfo: PKAdInfo(ad: event.ad)) : AdEvent.AdLoaded()
+                var adEvent = AdEvent.AdLoaded()
+                if event.ad != nil {
+                    let adInfo = PKAdInfo(ad: event.ad)
+                    self.pkAdInfo = adInfo
+                    adEvent = AdEvent.AdLoaded(adInfo: adInfo)
+                    print("Nilit: \(adInfo.positionType.description) \(adInfo.timeOffset)")
+                }
                 self.notify(event: adEvent)
                 // if we have more than one ad don't start the manager, it will be handled in `AD_BREAK_READY`
                 guard adsManager.adCuePoints.count == 0 else { return }
@@ -349,8 +382,15 @@ enum IMAState: Int, StateProtocol {
             }
         case .STARTED:
             self.stateMachine.set(state: .adsPlaying)
-            let event = event.ad != nil ? AdEvent.AdStarted(adInfo: PKAdInfo(ad: event.ad)) : AdEvent.AdStarted()
-            self.notify(event: event)
+            var adEvent = AdEvent.AdStarted()
+            if event.ad != nil {
+                let adInfo = PKAdInfo(ad: event.ad)
+                self.pkAdInfo = adInfo
+                adEvent = AdEvent.AdStarted(adInfo: PKAdInfo(ad: event.ad))
+                print("Nilit: \(adInfo.positionType.description) \(adInfo.timeOffset)")
+            }
+            
+            self.notify(event: adEvent)
         case .ALL_ADS_COMPLETED:
             // detaching the delegate and destroying the adsManager. 
             // means all ads have been played so we can destroy the adsManager.
@@ -362,7 +402,12 @@ enum IMAState: Int, StateProtocol {
             } else {
                 self.notify(event: AdEvent.AdClicked())
             }
-        case .COMPLETE: self.notify(event: AdEvent.AdComplete())
+        case .COMPLETE:
+            self.notify(event: AdEvent.AdComplete())
+            if pkAdInfo?.adPosition == pkAdInfo?.totalAds, contentEndedNeedToPlayPostroll {
+                contentEndedNeedToPlayPostroll = false
+                contentComplete()
+            }
         case .FIRST_QUARTILE: self.notify(event: AdEvent.AdFirstQuartile())
         case .LOG: self.notify(event: AdEvent.AdLog())
         case .MIDPOINT: self.notify(event: AdEvent.AdMidpoint())
