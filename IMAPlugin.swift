@@ -128,25 +128,31 @@ enum IMAState: Int, StateProtocol {
         
         self.messageBus?.addObserver(self, events: [PlayerEvent.ended]) { [weak self] event in
             guard let strongSelf = self else { return }
-            print("Nilit: PlayerEvent.ended \(strongSelf.pkAdInfo?.positionType.description ?? "nil")")
             
-            guard let adCuePoints = strongSelf.adsManager?.adCuePoints, adCuePoints.count > 1 else {
-                // There is only one ad
+            guard let adCuePoints = strongSelf.adsManager?.adCuePoints as? [NSNumber], adCuePoints.count > 1 else {
+                // There is only one ad, nothing left to do
                 strongSelf.contentComplete()
                 return
             }
             
-            guard adCuePoints.last as? NSNumber == -1 else {
-                // There is no Post-roll
+            guard adCuePoints.last == -1 else {
+                // There is no Post-roll, nothing left to do
                 strongSelf.contentComplete()
                 return
             }
             
-            // There is a Post-roll
-            let prePostRoll = adCuePoints[adCuePoints.count - 2] as? NSNumber
-            print("Nilit: \(prePostRoll?.doubleValue)")
-            if strongSelf.pkAdInfo?.timeOffset != prePostRoll?.doubleValue {
-                // Last Mid-roll wasn't played, need to wait for it
+            // There is a Post-roll and there are more than one ads
+            let duration = player.duration
+            var lastValidCuePoint: Double = 0
+            
+            for cuePoint in adCuePoints {
+                if cuePoint.doubleValue <= duration && lastValidCuePoint < cuePoint.doubleValue {
+                    lastValidCuePoint = cuePoint.doubleValue
+                }
+            }
+            
+            if strongSelf.pkAdInfo?.timeOffset != lastValidCuePoint {
+                // Last valid CuePoint wasn't played, need to wait for it
                 strongSelf.contentEndedNeedToPlayPostroll = true
             } else {
                 strongSelf.contentComplete()
@@ -248,7 +254,6 @@ enum IMAState: Int, StateProtocol {
     }
     
     func contentComplete() {
-        print("Nilit: contentComplete")
         IMAPlugin.loader?.contentComplete()
     }
     
@@ -362,6 +367,7 @@ enum IMAState: Int, StateProtocol {
             self.notify(event: AdEvent.AdBreakReady())
             guard canPlayAd(forState: currentState) else { return }
             self.start(adsManager: adsManager)
+            
         // single ad only fires `LOADED` without `AD_BREAK_READY`.
         case .LOADED:
             if shouldDiscard(ad: event.ad, currentState: currentState) {
@@ -372,7 +378,6 @@ enum IMAState: Int, StateProtocol {
                     let adInfo = PKAdInfo(ad: event.ad)
                     self.pkAdInfo = adInfo
                     adEvent = AdEvent.AdLoaded(adInfo: adInfo)
-                    print("Nilit: \(adInfo.positionType.description) \(adInfo.timeOffset)")
                 }
                 self.notify(event: adEvent)
                 // if we have more than one ad don't start the manager, it will be handled in `AD_BREAK_READY`
@@ -380,6 +385,7 @@ enum IMAState: Int, StateProtocol {
                 guard canPlayAd(forState: currentState) else { return }
                 self.start(adsManager: adsManager)
             }
+            
         case .STARTED:
             self.stateMachine.set(state: .adsPlaying)
             var adEvent = AdEvent.AdStarted()
@@ -387,37 +393,56 @@ enum IMAState: Int, StateProtocol {
                 let adInfo = PKAdInfo(ad: event.ad)
                 self.pkAdInfo = adInfo
                 adEvent = AdEvent.AdStarted(adInfo: PKAdInfo(ad: event.ad))
-                print("Nilit: \(adInfo.positionType.description) \(adInfo.timeOffset)")
             }
-            
             self.notify(event: adEvent)
+            
         case .ALL_ADS_COMPLETED:
-            // detaching the delegate and destroying the adsManager. 
+            // detaching the delegate and destroying the adsManager.
             // means all ads have been played so we can destroy the adsManager.
             self.destroyManager()
             self.notify(event: AdEvent.AllAdsCompleted())
+            
         case .CLICKED:
             if let clickThroughUrl = event.ad.value(forKey: "clickThroughUrl") as? String {
                 self.notify(event: AdEvent.AdClicked(clickThroughUrl: clickThroughUrl))
             } else {
                 self.notify(event: AdEvent.AdClicked())
             }
+            
         case .COMPLETE:
             self.notify(event: AdEvent.AdComplete())
             if pkAdInfo?.adPosition == pkAdInfo?.totalAds, contentEndedNeedToPlayPostroll {
                 contentEndedNeedToPlayPostroll = false
                 contentComplete()
             }
-        case .FIRST_QUARTILE: self.notify(event: AdEvent.AdFirstQuartile())
-        case .LOG: self.notify(event: AdEvent.AdLog())
-        case .MIDPOINT: self.notify(event: AdEvent.AdMidpoint())
-        case .PAUSE: self.notify(event: AdEvent.AdPaused())
-        case .RESUME: self.notify(event: AdEvent.AdResumed())
-        case .SKIPPED: self.notify(event: AdEvent.AdSkipped())
-        case .TAPPED: self.notify(event: AdEvent.AdTapped())
-        case .THIRD_QUARTILE: self.notify(event: AdEvent.AdThirdQuartile())
+            
+        case .FIRST_QUARTILE:
+            self.notify(event: AdEvent.AdFirstQuartile())
+            
+        case .LOG:
+            self.notify(event: AdEvent.AdLog())
+            
+        case .MIDPOINT:
+            self.notify(event: AdEvent.AdMidpoint())
+            
+        case .PAUSE:
+            self.notify(event: AdEvent.AdPaused())
+            
+        case .RESUME:
+            self.notify(event: AdEvent.AdResumed())
+            
+        case .SKIPPED:
+            self.notify(event: AdEvent.AdSkipped())
+            
+        case .TAPPED:
+            self.notify(event: AdEvent.AdTapped())
+            
+        case .THIRD_QUARTILE:
+            self.notify(event: AdEvent.AdThirdQuartile())
+            
         // Only used for dynamic ad insertion (not officially supported)
-        case .AD_BREAK_ENDED, .AD_BREAK_STARTED, .CUEPOINTS_CHANGED, .STREAM_LOADED, .STREAM_STARTED: break
+        case .AD_BREAK_ENDED, .AD_BREAK_STARTED, .CUEPOINTS_CHANGED, .STREAM_LOADED, .STREAM_STARTED:
+            break
         }
     }
     
