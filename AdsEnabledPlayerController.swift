@@ -216,14 +216,16 @@ extension AdsEnabledPlayerController: AppStateObservable {
     
     var observations: Set<NotificationObservation> {
         return [
-            NotificationObservation(name: .UIApplicationDidEnterBackground) { [weak self] in
+            NotificationObservation(name: UIApplication.didEnterBackgroundNotification) { [weak self] in
+                guard let strongSelf = self else { return }
                 // when we enter background make sure to pause if we were playing.
-                self?.pause()
+                strongSelf.pause()
                 // notify the ads plugin we are entering to the background.
-                self?.adsPlugin.didEnterBackground()
+                strongSelf.adsPlugin.didEnterBackground()
             },
-            NotificationObservation(name: .UIApplicationWillEnterForeground) { [weak self] in
-                self?.adsPlugin.willEnterForeground()
+            NotificationObservation(name: UIApplication.willEnterForegroundNotification) { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.adsPlugin.willEnterForeground()
             }
         ]
     }
