@@ -595,8 +595,8 @@ enum IMAState: Int, StateProtocol {
     }
     
     @available(iOS 9.0, *)
-    @objc public func picture(_ pictureInPictureController: AVPictureInPictureController, failedToStartPictureInPictureWithError error: Error) {
-        self.pipDelegate?.picture?(pictureInPictureController, failedToStartPictureInPictureWithError: error)
+    @objc public func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, failedToStartPictureInPictureWithError error: Error) {
+        self.pipDelegate?.pictureInPictureController?(pictureInPictureController, failedToStartPictureInPictureWithError: error)
     }
     
     @available(iOS 9.0, *)
@@ -610,8 +610,8 @@ enum IMAState: Int, StateProtocol {
     }
     
     @available(iOS 9.0, *)
-    @objc public func picture(_ pictureInPictureController: AVPictureInPictureController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {
-        self.pipDelegate?.picture?(pictureInPictureController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler: completionHandler)
+    @objc public func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {
+        self.pipDelegate?.pictureInPictureController?(pictureInPictureController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler: completionHandler)
     }
 
     /************************************************************/
