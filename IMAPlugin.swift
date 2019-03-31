@@ -127,17 +127,17 @@ enum IMAState: Int, StateProtocol {
         IMAPlugin.loader.delegate = self
         
         self.messageBus?.addObserver(self, events: [PlayerEvent.ended]) { [weak self] event in
-            guard let strongSelf = self else { return }
+            guard let self = self else { return }
             
-            guard let adCuePoints = strongSelf.adsManager?.adCuePoints as? [NSNumber], adCuePoints.count > 1 else {
+            guard let adCuePoints = self.adsManager?.adCuePoints as? [NSNumber], adCuePoints.count > 1 else {
                 // There is only one ad, nothing left to do
-                strongSelf.contentComplete()
+                self.contentComplete()
                 return
             }
             
             guard adCuePoints.last == -1 else {
                 // There is no Post-roll, nothing left to do
-                strongSelf.contentComplete()
+                self.contentComplete()
                 return
             }
             
@@ -151,11 +151,11 @@ enum IMAState: Int, StateProtocol {
                 }
             }
             
-            if strongSelf.pkAdInfo?.timeOffset != lastValidCuePoint {
+            if self.pkAdInfo?.timeOffset != lastValidCuePoint {
                 // Last valid CuePoint wasn't played, need to wait for it
-                strongSelf.contentEndedNeedToPlayPostroll = true
+                self.contentEndedNeedToPlayPostroll = true
             } else {
-                strongSelf.contentComplete()
+                self.contentComplete()
             }
         }
     }
@@ -226,21 +226,21 @@ enum IMAState: Int, StateProtocol {
         // start timeout timer
         self.requestTimeoutTimer = PKTimer.after(self.requestTimeoutInterval) { [weak self] _ in
             
-            guard let strongSelf = self else { return }
+            guard let self = self else { return }
             
-            if strongSelf.adsManager == nil {
+            if self.adsManager == nil {
                 PKLog.debug("Ads request timed out")
-                switch strongSelf.stateMachine.getState() {
-                case .adsRequested: strongSelf.delegate?.adsRequestTimedOut(shouldPlay: false)
-                case .adsRequestedAndPlay: strongSelf.delegate?.adsRequestTimedOut(shouldPlay: true)
+                switch self.stateMachine.getState() {
+                case .adsRequested: self.delegate?.adsRequestTimedOut(shouldPlay: false)
+                case .adsRequestedAndPlay: self.delegate?.adsRequestTimedOut(shouldPlay: true)
                 default: break // should not receive timeout for any other state
                 }
                 // set state to request failure
-                strongSelf.stateMachine.set(state: .adsRequestTimedOut)
+                self.stateMachine.set(state: .adsRequestTimedOut)
                 
-                strongSelf.invalidateRequestTimer()
+                self.invalidateRequestTimer()
                 // post ads request timeout event
-                strongSelf.notify(event: AdEvent.RequestTimedOut())
+                self.notify(event: AdEvent.RequestTimedOut())
             }
         }
     }
