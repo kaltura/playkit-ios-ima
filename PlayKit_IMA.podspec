@@ -23,7 +23,7 @@ Pod::Spec.new do |s|
         'LIBRARY_SEARCH_PATHS' => '$(inherited) "${PODS_ROOT}"/**' 
   }
 
-  s.dependency 'PlayKit', '~> 3.8.0' + suffix
+  s.dependency 'PlayKit', '~> 3.9.0' + suffix
   s.dependency 'XCGLogger', '~> 6.1.0'
   s.dependency 'GoogleAds-IMA-iOS-SDK', '3.8.1'
 end
