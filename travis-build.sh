@@ -1,7 +1,5 @@
 #!/bin/bash
 
-TRAVIS_EVENT_TYPE=cron  # TODO: fix
-
 set -e -o pipefail
 
 # Login to cocoapods trunk.
@@ -30,9 +28,8 @@ trunkPush() {
 }
 
 justBuild() {
-  cd TestApp
-  pod install
-  xcodebuild build -workspace TestApp.xcworkspace -scheme TestApp -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO | xcpretty
+  # no test app, do libLint
+  libLint
 }
 
 libLint() {
