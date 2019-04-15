@@ -443,6 +443,8 @@ enum IMAState: Int, StateProtocol {
         // Only used for dynamic ad insertion (not officially supported)
         case .AD_BREAK_ENDED, .AD_BREAK_STARTED, .CUEPOINTS_CHANGED, .STREAM_LOADED, .STREAM_STARTED:
             break
+        @unknown default:
+            break
         }
     }
     

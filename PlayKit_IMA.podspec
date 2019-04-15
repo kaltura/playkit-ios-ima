@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
   s.summary          = 'PlayKit IMA Plugin'
   s.homepage         = 'https://github.com/kaltura/playkit-ios-ima'
   s.source           = { :git => 'https://github.com/kaltura/playkit-ios-ima.git', :tag => 'v' + s.version.to_s }
-  s.swift_version    = '4.2'
+  s.swift_version    = '5.0'
   
   s.source_files = '**/*.swift'
   
@@ -24,6 +24,6 @@ Pod::Spec.new do |s|
   }
 
   s.dependency 'PlayKit', '~> 3.9.0' + suffix
-  s.dependency 'XCGLogger', '~> 6.1.0'
+  s.dependency 'XCGLogger', '7.0.0'
   s.dependency 'GoogleAds-IMA-iOS-SDK', '3.8.1'
 end
