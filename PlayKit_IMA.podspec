@@ -4,7 +4,7 @@ suffix = '-dev'   # Dev mode
 
 Pod::Spec.new do |s|
   s.name             = 'PlayKit_IMA'
-  s.version          = '1.4.0' + suffix
+  s.version          = '1.5.0' + suffix
   s.author           = { 'Kaltura' => 'community@kaltura.com' }
   s.license          = { :type => 'AGPLv3', :text => 'AGPLv3' }
   s.summary          = 'PlayKit IMA Plugin'
@@ -23,7 +23,7 @@ Pod::Spec.new do |s|
         'LIBRARY_SEARCH_PATHS' => '$(inherited) "${PODS_ROOT}"/**' 
   }
 
-  s.dependency 'PlayKit', '~> 3.9.0' + suffix
+  s.dependency 'PlayKit', '~> 3.10.0' + suffix
   s.dependency 'XCGLogger', '7.0.0'
   s.dependency 'GoogleAds-IMA-iOS-SDK', '3.8.1'
 end
