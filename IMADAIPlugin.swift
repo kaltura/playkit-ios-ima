@@ -231,14 +231,13 @@ import PlayKitUtils
         
         request.apiKey = pluginConfig.apiKey
         
-        stateMachine.set(state: .adsRequested)
-        
-        if IMADAIPlugin.adsLoader == nil || stateMachine.getState() == .adsRequestFailed {
+        if IMADAIPlugin.adsLoader == nil || stateMachine.getState() == .adsRequestFailed || stateMachine.getState() == .adsRequestTimedOut {
             createAdsLoader()
         }
         
         PKLog.debug("Request Ads")
         IMADAIPlugin.adsLoader.requestStream(with: request)
+        stateMachine.set(state: .adsRequested)
         notify(event: AdEvent.AdsRequested())
         
         requestTimeoutTimer = PKTimer.after(requestTimeoutInterval) { [weak self] _ in
@@ -254,7 +253,7 @@ import PlayKitUtils
                 default:
                     break // Should not receive timeout for any other state
                 }
-                // Set state to request failure
+                // Set state to request timed out
                 strongSelf.stateMachine.set(state: .adsRequestTimedOut)
                 strongSelf.invalidateRequestTimer()
                 // Post ads request timeout event
@@ -297,8 +296,13 @@ import PlayKitUtils
     }
     
     public func didRequestPlay(ofType type: PlayType) {
-        // Ad is embeded in the stream, anyway the play request is approved.
-        delegate?.play(type)
+        switch self.stateMachine.getState() {
+        case .adsRequested, .adsRequestedAndPlay:
+            self.stateMachine.set(state: .adsRequestedAndPlay)
+        default:
+            // Ad is embeded in the stream, anyway the play request is approved.
+            delegate?.play(type)
+        }
     }
     
     public func didEnterBackground() {
@@ -431,9 +435,9 @@ import PlayKitUtils
                     self.player?.seek(to: streamTime)
                 }
             }
-            self.stateMachine.set(state: .contentPlaying)
         case .STREAM_STARTED:
             self.notify(event: AdEvent.StreamStarted())
+            self.stateMachine.set(state: .contentPlaying)
         case .AD_BREAK_STARTED:
             if isAdPlayable() {
                 self.stateMachine.set(state: .adsPlaying)
