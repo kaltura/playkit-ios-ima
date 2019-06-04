@@ -449,7 +449,7 @@ enum IMAState: Int, StateProtocol {
             self.notify(event: AdEvent.AdThirdQuartile())
             
         // Only used for dynamic ad insertion (not officially supported)
-        case .AD_BREAK_ENDED, .AD_BREAK_STARTED, .CUEPOINTS_CHANGED, .STREAM_LOADED, .STREAM_STARTED:
+        case .AD_BREAK_ENDED, .AD_BREAK_STARTED, .CUEPOINTS_CHANGED, .STREAM_LOADED, .STREAM_STARTED, .AD_PERIOD_STARTED, .AD_PERIOD_ENDED:
             break
         @unknown default:
             break
@@ -501,7 +501,7 @@ enum IMAState: Int, StateProtocol {
     private static func createAdDisplayContainer(forView view: UIView, withCompanionView companionView: UIView? = nil) -> IMAAdDisplayContainer {
         // setup ad display container and companion if exists, needs to create a new ad container for each request.
         if let cv = companionView {
-            let companionAdSlot = IMACompanionAdSlot(view: companionView, width: Int32(cv.frame.size.width), height: Int32(cv.frame.size.height))
+            let companionAdSlot = IMACompanionAdSlot(view: companionView, width: Int(cv.frame.size.width), height: Int(cv.frame.size.height))
             return IMAAdDisplayContainer(adContainer: view, companionSlots: [companionAdSlot!])
         } else {
             return IMAAdDisplayContainer(adContainer: view, companionSlots: [])

@@ -5,7 +5,7 @@ import GoogleInteractiveMediaAds
 import PlayKit
 
 @objc public class PKIMAVideoDisplay: NSObject, IMAVideoDisplay, AdsDAIPlayerEngineWrapperDelegate {
-   
+    
     public var delegate: IMAVideoDisplayDelegate!
     private var adsDAIPlayerEngineWrapper: AdsDAIPlayerEngineWrapper
 
@@ -108,9 +108,7 @@ import PlayKit
     @objc private func adTimerFired() {
         guard let currentPosition = adsDAIPlayerEngineWrapper.playerEngine?.currentPosition else { return }
         adCurrentTime = currentPosition - adStartTime
-//        print("Nilit: \(currentPosition)")
         if currentPosition > adStartTime, adCurrentTime < adDuration {
-//            print("Nilit: \(adCurrentTime) / \(adDuration)")
             delegate.videoDisplay(self, didProgressWithMediaTime: currentPosition, totalTime: adDuration)
         } else
         
@@ -143,20 +141,17 @@ import PlayKit
     }
     
     public func play() {
-//        print("Nilit: play called from IMA")
         // Called to inform the VideoDisplay to play.
         adsDAIPlayerEngineWrapper.play()
     }
     
     public func pause() {
-//        print("Nilit: pause called from IMA")
         // Called to inform the VideoDisplay to pause.
         // Calling the playerEngine.pause() because IMA already sent the 'Pause' event
         adsDAIPlayerEngineWrapper.playerEngine?.pause()
     }
     
     public func reset() {
-//        print("Nilit: reset called from IMA")
         // Called to remove all video assets from the player.
         
         isAdPlaying = false
@@ -168,7 +163,6 @@ import PlayKit
     }
     
     public func seekStream(toTime time: TimeInterval) {
-//        print("Nilit: seek called from IMA")
         // Called to inform that the stream needs to be seeked to the given time.
         adsDAIPlayerEngineWrapper.seek(to: time)
     }
@@ -178,26 +172,22 @@ import PlayKit
     // ********************************
     
     public var currentMediaTime: TimeInterval {
-//        print("Nilit: currentMediaTime called from IMA")
         // The current media time of the ad, or 0 if no ad loaded.
         return adCurrentTime
     }
     
     public var totalMediaTime: TimeInterval {
-//        print("Nilit: totalMediaTime called from IMA")
         // The total media time of the ad, or 0 if no ad loaded.
         return adDuration
     }
     
     public var bufferedMediaTime: TimeInterval {
-//        print("Nilit: bufferedMediaTime called from IMA")
         // The buffered media time of the ad, or 0 if no ad loaded.
         return adDuration
         // TODO: Need to return the correct buffered time
     }
     
     public var isPlaying: Bool {
-//        print("Nilit: isPlaying called from IMA")
         // Whether or not the ad is currently playing.
         return isAdPlaying
     }
@@ -213,7 +203,6 @@ import PlayKit
     public func adPlaying(startTime: TimeInterval, duration: TimeInterval) {
         isAdPlaying = true
         adStartTime = startTime
-//        print("Nilit: adStartTime: \(adStartTime)")
         adDuration = duration
         adCurrentTime = 0
         
@@ -237,7 +226,6 @@ import PlayKit
     }
     
     public func adCompleted() {
-//        print("Nilit: adCompleted func")
         adTimer?.invalidate()
         adTimer = nil
         
@@ -248,6 +236,10 @@ import PlayKit
         adStartTime = 0
         adDuration = 0
         adCurrentTime = 0
+    }
+    
+    public func receivedTimedMetadata(_ metadata: [String : String]) {
+        delegate.videoDisplay(self, didReceiveTimedMetadata: metadata)
     }
 }
 

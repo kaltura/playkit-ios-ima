@@ -125,7 +125,7 @@ import PlayKitUtils
     private static func createAdDisplayContainer(forView view: UIView, withCompanionView companionView: UIView? = nil) -> IMAAdDisplayContainer {
         // Setup ad display container and companion if exists, needs to create a new ad container for each request.
         if let cv = companionView {
-            let companionAdSlot = IMACompanionAdSlot(view: companionView, width: Int32(cv.frame.size.width), height: Int32(cv.frame.size.height))
+            let companionAdSlot = IMACompanionAdSlot(view: companionView, width: Int(cv.frame.size.width), height: Int(cv.frame.size.height))
             return IMAAdDisplayContainer(adContainer: view, companionSlots: [companionAdSlot!])
         } else {
             return IMAAdDisplayContainer(adContainer: view, companionSlots: [])
@@ -252,23 +252,23 @@ import PlayKitUtils
                 case .adsRequestedAndPlay:
                     strongSelf.delegate?.adsRequestTimedOut(shouldPlay: true)
                 default:
-                    break // should not receive timeout for any other state
+                    break // Should not receive timeout for any other state
                 }
-                // set state to request failure
+                // Set state to request failure
                 strongSelf.stateMachine.set(state: .adsRequestTimedOut)
                 strongSelf.invalidateRequestTimer()
-                // post ads request timeout event
+                // Post ads request timeout event
                 strongSelf.notify(event: AdEvent.RequestTimedOut())
             }
         }
     }
     
     public func resume() {
-        //        self.player?.resume()
+        // No need to resume the ad because it is embeded in the stream.
     }
     
     public func pause() {
-        //        self.player?.pause()
+        // No need to pause the ad because it is embeded in the stream.
     }
     
     public func contentComplete() {
@@ -293,20 +293,12 @@ import PlayKitUtils
     }
     
     public func didPlay() {
-        // TODO: know if it's an ad or content
-        //        self.stateMachine.set(state: .contentPlaying)
+        // Ad is embeded in the stream, state is changed upon the IMA events received.
     }
     
     public func didRequestPlay(ofType type: PlayType) {
-        switch stateMachine.getState() {
-        //        case .adsLoadedAndPlay:
-        case .adsLoaded:
-            // TODO: know where we are and set state
-            delegate?.play(type)
-        default:
-//            print("Nilit: didRequestPlay, take care of \(self.stateMachine.getState())")
-            delegate?.play(type)
-        }
+        // Ad is embeded in the stream, anyway the play request is approved.
+        delegate?.play(type)
     }
     
     public func didEnterBackground() {
@@ -355,8 +347,8 @@ import PlayKitUtils
     /************************************************************/
     
     public static func warmUp() {
-        // load adsLoader in order to make IMA download the needed objects before initializing.
-        // will setup the instance when first player is loaded
+        // Load adsLoader in order to make IMA download the needed objects before initializing.
+        // Will setup the instance when first player is loaded
         _ = IMAAdsLoader(settings: IMASettings())
     }
     
@@ -390,9 +382,6 @@ import PlayKitUtils
     /************************************************************/
     
     public func adsLoader(_ loader: IMAAdsLoader!, adsLoadedWith adsLoadedData: IMAAdsLoadedData!) {
-//        print("Nilit: IMADAIPlugin adsLoader adsLoadedData")
-//        self.loaderRetries = IMAPlugin.loaderRetryCount
-        
         switch stateMachine.getState() {
         case .adsRequested:
             stateMachine.set(state: .adsLoaded)
@@ -427,9 +416,7 @@ import PlayKitUtils
     /************************************************************/
     
     public func streamManager(_ streamManager: IMAStreamManager!, didReceive event: IMAAdEvent!) {
-//        print("Nilit: Stream manager event: \(String(describing: event.typeString))")
         PKLog.trace("Stream manager event: " + event.typeString)
-//        let currentState = self.stateMachine.getState()
         
         switch event.type {
         case .CUEPOINTS_CHANGED:
@@ -440,7 +427,6 @@ import PlayKitUtils
         case .STREAM_LOADED:
             self.notify(event: AdEvent.StreamLoaded())
             if self.pluginConfig.streamType == .vod {
-                // TODO: check if it starts from the start time.
                 if let streamTime = self.streamManager?.streamTime(forContentTime: self.renderingSettings.playAdsAfterTime), streamTime > 0 {
                     self.player?.seek(to: streamTime)
                 }
@@ -487,9 +473,13 @@ import PlayKitUtils
         case .COMPLETE:
             self.notify(event: AdEvent.AdComplete())
         case .AD_BREAK_ENDED:
-            self.stateMachine.set(state: .contentPlaying)
             self.notify(event: AdEvent.AdBreakEnded())
+            self.stateMachine.set(state: .contentPlaying)
             self.notify(event: AdEvent.AdDidRequestContentResume())
+        case .AD_PERIOD_STARTED:
+            self.notify(event: AdEvent.AdPeriodStarted())
+        case .AD_PERIOD_ENDED:
+            self.notify(event: AdEvent.AdPeriodEnded())
         case .LOG:
             break
         default:
@@ -509,7 +499,6 @@ import PlayKitUtils
                               adPosition: Int,
                               totalAds: Int,
                               adBreakDuration: TimeInterval) {
-//        print("Nilit: streamManager adDidProgressToTime \(time) adDuration \(adDuration) adPosition \(adPosition) totalAds \(totalAds) adBreakDuration \(adBreakDuration)")
         self.notify(event: AdEvent.AdDidProgressToTime(mediaTime: time, totalTime: adDuration))
     }
 }

@@ -37,10 +37,10 @@ import GoogleInteractiveMediaAds
     public var enableDebugMode: Bool = false
     
     // IMAAdsRenderingSettings
-    public var videoMimeTypes: [Any]?
+    public var videoMimeTypes: [String]?
     public var videoBitrate = kIMAAutodetectBitrate
     public var loadVideoTimeout: TimeInterval?
-    public var uiElements: [Any]?
+    public var uiElements: [NSNumber]?
     public var disableUI: Bool = false
     public var webOpenerPresentingController: UIViewController?
     
