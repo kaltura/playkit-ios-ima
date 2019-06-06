@@ -338,12 +338,12 @@ import PlayKitUtils
         return CuePoint(startTime: imaCuePoint.startTime, endTime: imaCuePoint.endTime, played: imaCuePoint.isPlayed)
     }
     
-    public func canPlayAd(atStreamTime streamTime: TimeInterval) -> (canPlay: Bool, duration: TimeInterval) {
+    public func canPlayAd(atStreamTime streamTime: TimeInterval) -> (canPlay: Bool, duration: TimeInterval, endTime: TimeInterval)? {
         let nextStreamTime = streamTime + 1
         guard let imaCuePoint = streamManager?.previousCuepoint(forStreamTime: nextStreamTime) else {
-            return (true, 0)
+            return nil
         }
-        return (!imaCuePoint.isPlayed, imaCuePoint.endTime - imaCuePoint.startTime)
+        return (!imaCuePoint.isPlayed, imaCuePoint.endTime - imaCuePoint.startTime, imaCuePoint.endTime)
     }
     
     /************************************************************/
@@ -430,11 +430,6 @@ import PlayKitUtils
             self.cuepoints = cuepointsArray
         case .STREAM_LOADED:
             self.notify(event: AdEvent.StreamLoaded())
-            if self.pluginConfig.streamType == .vod {
-                if let streamTime = self.streamManager?.streamTime(forContentTime: self.renderingSettings.playAdsAfterTime), streamTime > 0 {
-                    self.player?.seek(to: streamTime)
-                }
-            }
         case .STREAM_STARTED:
             self.notify(event: AdEvent.StreamStarted())
             self.stateMachine.set(state: .contentPlaying)
@@ -444,8 +439,8 @@ import PlayKitUtils
                 self.notify(event: AdEvent.AdDidRequestContentPause())
                 self.notify(event: AdEvent.AdBreakStarted())
             } else {
-                if let newTime = self.currentCuepoint?.endTime {
-                    self.player?.seek(to: newTime)
+                if let newTime = self.currentCuepoint?.endTime, let time = self.streamManager?.contentTime(forStreamTime: newTime) {
+                    self.player?.seek(to: time)
                 }
             }
         case .LOADED:
