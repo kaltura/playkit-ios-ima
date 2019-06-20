@@ -37,7 +37,7 @@ enum IMAState: Int, StateProtocol {
     case contentPlaying
 }
 
-@objc public class IMAPlugin: BasePlugin, PKPluginWarmUp, PlayerDecoratorProvider, PlayerEngineWrapperProvider, AdsPlugin, IMAAdsLoaderDelegate, IMAAdsManagerDelegate, IMAWebOpenerDelegate, IMAContentPlayhead {
+@objc public class IMAPlugin: BasePlugin, PKPluginWarmUp, PlayerDecoratorProvider, PlayerEngineWrapperProvider, PIPEnabledAdsPlugin, IMAAdsLoaderDelegate, IMAAdsManagerDelegate, IMAWebOpenerDelegate, IMAContentPlayhead {
 
     // internal errors for requesting ads
     enum IMAPluginRequestError: Error {

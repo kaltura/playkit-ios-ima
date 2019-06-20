@@ -189,7 +189,6 @@ import PlayKitUtils
     }
     
     weak public var delegate: AdsPluginDelegate?
-    public var pipDelegate: AVPictureInPictureControllerDelegate?
     
     public var isAdPlaying: Bool {
         return self.stateMachine.getState() == .adsPlaying
