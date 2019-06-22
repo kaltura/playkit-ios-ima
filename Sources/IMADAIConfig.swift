@@ -34,7 +34,7 @@ import GoogleInteractiveMediaAds
     public var disableNowPlayingInfo: Bool = false
     public var playerType: String = "kaltura-vp-ios"
     public var playerVersion: String?
-    public var enableDebugMode: Bool = false
+    public var enableDebugMode: Bool = true//false
     
     // IMAAdsRenderingSettings
     public var videoMimeTypes: [String]?

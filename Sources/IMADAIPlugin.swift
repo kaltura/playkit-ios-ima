@@ -145,6 +145,7 @@ import PlayKitUtils
             renderingSettings.loadVideoTimeout = loadVideoTimeout
         }
         
+        // TODO: Add logic upon adding the 'alwaysStartWithPreroll' boolean
         if let playAdsAfterTime = dataSource?.playAdsAfterTime, playAdsAfterTime > 0 {
             renderingSettings.playAdsAfterTime = playAdsAfterTime
         }

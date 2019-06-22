@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
   s.source           = { :git => 'https://github.com/kaltura/playkit-ios-ima.git', :tag => 'v' + s.version.to_s }
   s.swift_version    = '5.0'
   
-  s.source_files = '**/*.swift'
+  s.source_files = 'Sources/**/*'
   
   s.ios.deployment_target = '9.0'
 
