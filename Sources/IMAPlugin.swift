@@ -37,8 +37,8 @@ enum IMAState: Int, StateProtocol {
     case contentPlaying
 }
 
-@objc public class IMAPlugin: BasePlugin, PKPluginWarmUp, PlayerDecoratorProvider, AdsPlugin, IMAAdsLoaderDelegate, IMAAdsManagerDelegate, IMAWebOpenerDelegate, IMAContentPlayhead {
-    
+@objc public class IMAPlugin: BasePlugin, PKPluginWarmUp, PlayerDecoratorProvider, PlayerEngineWrapperProvider, PIPEnabledAdsPlugin, IMAAdsLoaderDelegate, IMAAdsManagerDelegate, IMAWebOpenerDelegate, IMAContentPlayhead {
+
     // internal errors for requesting ads
     enum IMAPluginRequestError: Error {
         case missingPlayerView
@@ -48,13 +48,13 @@ enum IMAState: Int, StateProtocol {
     /// the default timeout interval for ads request.
     static let defaultTimeoutInterval: TimeInterval = 5
     
-    weak var dataSource: AdsPluginDataSource? {
+    weak public var dataSource: AdsPluginDataSource? {
         didSet {
             PKLog.debug("data source set")
         }
     }
-    weak var delegate: AdsPluginDelegate?
-    weak var pipDelegate: AVPictureInPictureControllerDelegate?
+    weak public var delegate: AdsPluginDelegate?
+    weak public var pipDelegate: AVPictureInPictureControllerDelegate?
     
     /// The IMA plugin state machine
     private var stateMachine = BasicStateMachine(initialState: IMAState.start, allowTransitionToInitialState: false)
@@ -182,18 +182,26 @@ enum IMAState: Int, StateProtocol {
     /************************************************************/
     
     @objc public func getPlayerDecorator() -> PlayerDecoratorBase? {
-        return AdsEnabledPlayerController(adsPlugin: self)
+        return nil
+    }
+
+    /************************************************************/
+    // MARK: - PlayerEngineWrapperProvider
+    /************************************************************/
+    
+    public func getPlayerEngineWrapper() -> PlayerEngineWrapper? {
+        return AdsPlayerEngineWrapper(adsPlugin: self)
     }
     
     /************************************************************/
     // MARK: - AdsPlugin
     /************************************************************/
     
-    var isAdPlaying: Bool {
+    public var isAdPlaying: Bool {
         return self.stateMachine.getState() == .adsPlaying
     }
     
-    func requestAds() throws {
+    public func requestAds() throws {
         guard let playerView = self.player?.view else { throw IMAPluginRequestError.missingPlayerView }
         guard !self.config.adTagUrl.isEmpty else {
             PKLog.debug("ad tag url is empty... can't request ads")
@@ -245,19 +253,19 @@ enum IMAState: Int, StateProtocol {
         }
     }
     
-    func resume() {
+    public func resume() {
         self.adsManager?.resume()
     }
     
-    func pause() {
+    public func pause() {
         self.adsManager?.pause()
     }
     
-    func contentComplete() {
+    public func contentComplete() {
         IMAPlugin.loader?.contentComplete()
     }
     
-    func destroyManager() {
+    public func destroyManager() {
         self.invalidateRequestTimer()
         self.adsManager?.delegate = nil
         self.adsManager?.destroy()
@@ -272,11 +280,11 @@ enum IMAState: Int, StateProtocol {
     }
     
     // when play() was used set state to content playing
-    func didPlay() {
+    public func didPlay() {
         self.stateMachine.set(state: .contentPlaying)
     }
     
-    func didRequestPlay(ofType type: AdsEnabledPlayerController.PlayType) {
+    public func didRequestPlay(ofType type: PlayType) {
         switch self.stateMachine.getState() {
         case .adsLoaded: self.startAd()
         case .adsRequested: self.stateMachine.set(state: .adsRequestedAndPlay)
@@ -285,7 +293,7 @@ enum IMAState: Int, StateProtocol {
         }
     }
     
-    func didEnterBackground() {
+    public func didEnterBackground() {
         switch self.stateMachine.getState() {
         case .adsRequested, .adsRequestedAndPlay:
             self.destroyManager()
@@ -294,7 +302,7 @@ enum IMAState: Int, StateProtocol {
         }
     }
     
-    func willEnterForeground() {
+    public func willEnterForeground() {
         if self.stateMachine.getState() == .startAndRequest {
             try? self.requestAds()
         }
@@ -441,7 +449,7 @@ enum IMAState: Int, StateProtocol {
             self.notify(event: AdEvent.AdThirdQuartile())
             
         // Only used for dynamic ad insertion (not officially supported)
-        case .AD_BREAK_ENDED, .AD_BREAK_STARTED, .CUEPOINTS_CHANGED, .STREAM_LOADED, .STREAM_STARTED:
+        case .AD_BREAK_ENDED, .AD_BREAK_STARTED, .CUEPOINTS_CHANGED, .STREAM_LOADED, .STREAM_STARTED, .AD_PERIOD_STARTED, .AD_PERIOD_ENDED:
             break
         @unknown default:
             break
@@ -493,7 +501,7 @@ enum IMAState: Int, StateProtocol {
     private static func createAdDisplayContainer(forView view: UIView, withCompanionView companionView: UIView? = nil) -> IMAAdDisplayContainer {
         // setup ad display container and companion if exists, needs to create a new ad container for each request.
         if let cv = companionView {
-            let companionAdSlot = IMACompanionAdSlot(view: companionView, width: Int32(cv.frame.size.width), height: Int32(cv.frame.size.height))
+            let companionAdSlot = IMACompanionAdSlot(view: companionView, width: Int(cv.frame.size.width), height: Int(cv.frame.size.height))
             return IMAAdDisplayContainer(adContainer: view, companionSlots: [companionAdSlot!])
         } else {
             return IMAAdDisplayContainer(adContainer: view, companionSlots: [])

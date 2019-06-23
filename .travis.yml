@@ -4,7 +4,7 @@ before_install:
   - gem install cocoapods xcpretty
   - pod repo update
 script:
-  - pod lib lint --fail-fast --verbose
+  - ./travis-build.sh
 notifications:
   email:
     recipients:
