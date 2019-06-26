@@ -145,8 +145,7 @@ import PlayKitUtils
             renderingSettings.loadVideoTimeout = loadVideoTimeout
         }
         
-        // TODO: Add logic upon adding the 'alwaysStartWithPreroll' boolean
-        if let playAdsAfterTime = dataSource?.playAdsAfterTime, playAdsAfterTime > 0 {
+        if !pluginConfig.alwaysStartWithPreroll, let playAdsAfterTime = dataSource?.playAdsAfterTime, playAdsAfterTime > 0 {
             renderingSettings.playAdsAfterTime = playAdsAfterTime
         }
         
@@ -193,6 +192,10 @@ import PlayKitUtils
     
     public var isAdPlaying: Bool {
         return self.stateMachine.getState() == .adsPlaying
+    }
+    
+    public var startWithPreroll: Bool {
+        return pluginConfig.alwaysStartWithPreroll
     }
     
     public func requestAds() throws {

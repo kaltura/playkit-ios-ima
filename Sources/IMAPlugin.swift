@@ -201,6 +201,10 @@ enum IMAState: Int, StateProtocol {
         return self.stateMachine.getState() == .adsPlaying
     }
     
+    public var startWithPreroll: Bool {
+        return config.alwaysStartWithPreroll
+    }
+    
     public func requestAds() throws {
         guard let playerView = self.player?.view else { throw IMAPluginRequestError.missingPlayerView }
         guard !self.config.adTagUrl.isEmpty else {
@@ -523,7 +527,7 @@ enum IMAState: Int, StateProtocol {
             self.renderingSettings.mimeTypes = mimeTypes
         }
 
-        if let playAdsAfterTime = self.dataSource?.playAdsAfterTime, playAdsAfterTime > 0 {
+        if !config.alwaysStartWithPreroll, let playAdsAfterTime = self.dataSource?.playAdsAfterTime, playAdsAfterTime > 0 {
             self.renderingSettings.playAdsAfterTime = playAdsAfterTime
         }
     }
