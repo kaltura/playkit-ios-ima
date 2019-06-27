@@ -585,6 +585,10 @@ enum IMAState: Int, StateProtocol {
         if isPreRollInvalid {
             return true
         }
+        
+        if adInfo.positionType == .preRoll && !startWithPreroll && renderingSettings.playAdsAfterTime > 0 {
+            return true
+        }
         return false
     }
     
