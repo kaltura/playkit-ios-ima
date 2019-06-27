@@ -49,6 +49,9 @@ import GoogleInteractiveMediaAds
     public var companionView: UIView?
     public var videoControlsOverlays: [UIView]?
     
+    /// This boolean indicates whether or not to play the pre-roll when the start position is bigger then 0.
+    /// Default value is false.
+    public var alwaysStartWithPreroll: Bool = false
     
     public var adAttribution: Bool = true
     public var adCountDown: Bool = true

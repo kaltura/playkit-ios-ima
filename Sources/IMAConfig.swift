@@ -14,9 +14,9 @@ import GoogleInteractiveMediaAds
 @objc public class IMAConfig: NSObject {
     
     @objc public let enableBackgroundPlayback = true
-    // defaulted to false, because otherwise ad breaks events will not happen.
-    // we need to have control on whether ad break will start playing or not using `Loaded` event is not enough. 
-    // (will also need more safety checks for loaded because loaded will happen more than once).
+    // Defaults to false, because otherwise ad breaks events will not happen.
+    // We need to have control on whether ad break will start playing or not, using `Loaded` event is not enough.
+    // (Will also need more safety checks for loaded because loaded will happen more than once).
     @objc public let autoPlayAdBreaks = false
     @objc public var language: String = "en"
 
@@ -26,9 +26,9 @@ import GoogleInteractiveMediaAds
     @objc public var ppid: String?
     @objc public var companionView: UIView?
     @objc public var webOpenerPresentingController: UIViewController?
-    /// ads request timeout interval, when ads request will take more then this time will resume content.
+    /// Ads request timeout interval, when ads request will take more then this time, will resume content.
     @objc public var requestTimeoutInterval: TimeInterval = IMAPlugin.defaultTimeoutInterval
-    /// enables debug mode on IMA SDK which will output detailed log information to the console. 
+    /// Enables debug mode on IMA SDK which will output detailed log information to the console.
     /// The default value is false.
     @objc public var enableDebugMode: Bool = false
     
@@ -38,6 +38,10 @@ import GoogleInteractiveMediaAds
     @objc public var vastLoadTimeout: NSNumber?
     
     @objc public var videoControlsOverlays: [UIView]?
+    
+    /// This boolean indicates whether or not to play the pre-roll when the start position is bigger then 0.
+    /// Default value is false.
+    @objc public var alwaysStartWithPreroll: Bool = false
     
     // Builders
     @discardableResult
