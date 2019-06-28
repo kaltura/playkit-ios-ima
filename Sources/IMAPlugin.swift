@@ -546,11 +546,7 @@ enum IMAState: Int, StateProtocol {
     }
     
     private func start(adsManager: IMAAdsManager) {
-        if let canPlay = self.dataSource?.adsPluginShouldPlayAd(self), canPlay == true {
-            adsManager.start()
-        } else {
-            self.adsManagerDidRequestContentResume(adsManager)
-        }
+        adsManager.start()
     }
     
     private func initAdsManager() {
