@@ -209,7 +209,7 @@ enum IMAState: Int, StateProtocol {
         guard let playerView = self.player?.view else { throw IMAPluginRequestError.missingPlayerView }
         
         if self.config.adTagUrl.isEmpty && self.config.adsResponse.isEmpty {
-            PKLog.debug("At least one should be provided: adTagUrl or adsResponse ... can't request ads")
+            PKLog.debug("Can't request ads, at least one of adTagUrl and adsResponse must be provided.")
             throw IMAPluginRequestError.emptyAdTag
         }
         
