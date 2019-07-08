@@ -72,7 +72,8 @@ import PlayKitUtils
         
         self.messageBus?.addObserver(self, events: [PlayerEvent.ended]) { [weak self] event in
             guard let strongSelf = self else { return }
-            strongSelf.contentComplete()
+            // Do NOT call contentComplete! Because this will reset the IMA correlator, and the UI won't be shown on the ads upon replay.
+            // strongSelf.contentComplete()
             strongSelf.notify(event: AdEvent.AllAdsCompleted())
         }
     }

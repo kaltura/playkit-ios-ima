@@ -15,7 +15,7 @@ import PlayKit
     private var adDuration: TimeInterval = 0
     
     private var adTimer: Timer?
-    private var adTimerInterval: TimeInterval = 0.2
+    private var adTimerInterval: TimeInterval = 0.5
 
     init(adsDAIPlayerEngineWrapper: AdsDAIPlayerEngineWrapper) {
         self.adsDAIPlayerEngineWrapper = adsDAIPlayerEngineWrapper
@@ -106,7 +106,10 @@ import PlayKit
     // ********************************
     
     @objc private func adTimerFired() {
-        guard let currentPosition = adsDAIPlayerEngineWrapper.playerEngine?.currentPosition else { return }
+        guard let currentPosition = adsDAIPlayerEngineWrapper.playerEngine?.currentPosition else {
+            adCompleted()
+            return
+        }
         adCurrentTime = currentPosition - adStartTime
         if currentPosition > adStartTime, adCurrentTime < adDuration {
             delegate.videoDisplay(self, didProgressWithMediaTime: currentPosition, totalTime: adDuration)
@@ -207,14 +210,15 @@ import PlayKit
         adCurrentTime = 0
         
         delegate.videoDisplayDidLoad(self)
-        delegate.videoDisplayDidStart(self)
-            
-        adTimer = Timer.scheduledTimer(timeInterval: adTimerInterval,
-                                       target: self,
-                                       selector: #selector(adTimerFired),
-                                       userInfo: nil,
-                                       repeats: true)
-        adTimer?.fire()
+        
+        if adTimer == nil {
+            adTimer = Timer.scheduledTimer(timeInterval: adTimerInterval,
+                                           target: self,
+                                           selector: #selector(adTimerFired),
+                                           userInfo: nil,
+                                           repeats: true)
+            adTimer?.fire()
+        }
     }
     
     public func adPaused() {
