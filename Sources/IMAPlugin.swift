@@ -207,8 +207,9 @@ enum IMAState: Int, StateProtocol {
     
     public func requestAds() throws {
         guard let playerView = self.player?.view else { throw IMAPluginRequestError.missingPlayerView }
-        guard !self.config.adTagUrl.isEmpty else {
-            PKLog.debug("ad tag url is empty... can't request ads")
+        
+        if self.config.adTagUrl.isEmpty && self.config.adsResponse.isEmpty {
+            PKLog.debug("Can't request ads, at least one of adTagUrl and adsResponse must be provided.")
             throw IMAPluginRequestError.emptyAdTag
         }
         
@@ -220,7 +221,13 @@ enum IMAState: Int, StateProtocol {
             }
         }
         
-        let request = IMAAdsRequest(adTagUrl: self.config.adTagUrl, adDisplayContainer: adDisplayContainer, contentPlayhead: self, userContext: nil)
+        let request: IMAAdsRequest?
+        if !self.config.adTagUrl.isEmpty {
+            request = IMAAdsRequest(adTagUrl: self.config.adTagUrl, adDisplayContainer: adDisplayContainer, contentPlayhead: self, userContext: nil)
+        } else {
+            request = IMAAdsRequest(adsResponse: self.config.adsResponse, adDisplayContainer: adDisplayContainer, contentPlayhead: self, userContext: nil)
+        }
+        
         if let vastLoadTimeout = self.config.vastLoadTimeout {
             request?.vastLoadTimeout = vastLoadTimeout.floatValue
         }
