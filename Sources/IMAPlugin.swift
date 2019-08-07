@@ -231,6 +231,12 @@ enum IMAState: Int, StateProtocol {
         if let vastLoadTimeout = self.config.vastLoadTimeout {
             request?.vastLoadTimeout = vastLoadTimeout.floatValue
         }
+        
+        // If the device volume is muted, this is not indicated by the mute switch.
+        if AVAudioSession.sharedInstance().outputVolume == 0 {
+            request?.adWillPlayMuted = true
+        }
+        
         // sets the state
         self.stateMachine.set(state: .adsRequested)
         // make sure loader exists otherwise create.
