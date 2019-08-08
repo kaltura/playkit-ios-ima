@@ -499,13 +499,15 @@ enum IMAState: Int, StateProtocol {
     
     private func setupLoader(with config: IMAConfig) {
         let imaSettings: IMASettings! = IMASettings()
+        if let ppid = config.ppid { imaSettings.ppid = ppid }
         imaSettings.language = config.language
+        imaSettings.maxRedirects = config.maxRedirects
         imaSettings.enableBackgroundPlayback = config.enableBackgroundPlayback
         imaSettings.autoPlayAdBreaks = config.autoPlayAdBreaks
-        if let ppid = config.ppid { imaSettings.ppid = ppid }
-        imaSettings.enableDebugMode = config.enableDebugMode
         imaSettings.playerType = config.playerType
         imaSettings.playerVersion = config.playerVersion
+        imaSettings.enableDebugMode = config.enableDebugMode
+        
         IMAPlugin.loader = IMAAdsLoader(settings: imaSettings)
     }
     
