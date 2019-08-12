@@ -6,7 +6,6 @@ target 'iOSTestApp' do
   use_frameworks!
 
   pod 'PlayKit_IMA', :path => '..'
-  pod 'PlayKit', :git => 'https://github.com/kaltura/playkit-ios.git', :branch => 'develop'
 
   target 'iOSTestAppTests' do
     inherit! :search_paths
