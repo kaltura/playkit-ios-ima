@@ -4,7 +4,7 @@ suffix = '-dev'   # Dev mode
 
 Pod::Spec.new do |s|
   s.name             = 'PlayKit_IMA'
-  s.version          = '1.7.0' + suffix
+  s.version          = '1.7.1' + suffix
   s.author           = { 'Kaltura' => 'community@kaltura.com' }
   s.license          = { :type => 'AGPLv3', :text => 'AGPLv3' }
   s.summary          = 'PlayKit IMA Plugin'
