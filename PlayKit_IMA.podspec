@@ -15,6 +15,7 @@ Pod::Spec.new do |s|
   s.source_files = 'Sources/**/*'
   
   s.ios.deployment_target = '9.0'
+  s.tvos.deployment_target = '9.1'
 
   s.xcconfig = { 
         'CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES' => 'YES',
@@ -25,5 +26,7 @@ Pod::Spec.new do |s|
 
   s.dependency 'PlayKit', '~> 3.11'
   s.dependency 'XCGLogger', '7.0.0'
-  s.dependency 'GoogleAds-IMA-iOS-SDK', '3.9.0'
+  s.ios.dependency 'GoogleAds-IMA-iOS-SDK', '3.11.1'
+  s.tvos.dependency 'GoogleAds-IMA-tvOS-SDK', '4.2.1'
+
 end

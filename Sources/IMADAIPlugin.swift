@@ -123,11 +123,20 @@ import PlayKitUtils
         setupLoader(with: self.pluginConfig)
     }
     
+    private static func createAdDisplayContainer(forView view: UIView) -> IMAAdDisplayContainer {
+        return IMAAdDisplayContainer(adContainer: view, companionSlots: [])
+    }
+    
+    @available(tvOS, unavailable)
     private static func createAdDisplayContainer(forView view: UIView, withCompanionView companionView: UIView? = nil) -> IMAAdDisplayContainer {
         // Setup ad display container and companion if exists, needs to create a new ad container for each request.
         if let cv = companionView {
-            let companionAdSlot = IMACompanionAdSlot(view: companionView, width: Int(cv.frame.size.width), height: Int(cv.frame.size.height))
-            return IMAAdDisplayContainer(adContainer: view, companionSlots: [companionAdSlot!])
+            #if os(iOS)
+                let companionAdSlot = IMACompanionAdSlot(view: companionView, width: Int(cv.frame.size.width), height: Int(cv.frame.size.height))
+                return IMAAdDisplayContainer(adContainer: view, companionSlots: [companionAdSlot!])
+            #else
+                return IMAAdDisplayContainer(adContainer: view, companionSlots: [])
+            #endif
         } else {
             return IMAAdDisplayContainer(adContainer: view, companionSlots: [])
         }
@@ -204,7 +213,11 @@ import PlayKitUtils
             throw IMADAIPluginRequestError.missingPlayerView
         }
         
-        adDisplayContainer = IMADAIPlugin.createAdDisplayContainer(forView: playerView, withCompanionView: pluginConfig.companionView)
+        #if os(tvOS)
+            adDisplayContainer = IMADAIPlugin.createAdDisplayContainer(forView: playerView)
+        #else
+            adDisplayContainer = IMADAIPlugin.createAdDisplayContainer(forView: playerView, withCompanionView: pluginConfig.companionView)
+        #endif
         
         if let videoControlsOverlays = pluginConfig.videoControlsOverlays {
             for overlay in videoControlsOverlays {
