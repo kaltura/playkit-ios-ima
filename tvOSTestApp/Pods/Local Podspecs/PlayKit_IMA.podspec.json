@@ -1,0 +1,54 @@
+{
+  "name": "PlayKit_IMA",
+  "version": "1.7.1-dev",
+  "authors": {
+    "Kaltura": "community@kaltura.com"
+  },
+  "license": {
+    "type": "AGPLv3",
+    "text": "AGPLv3"
+  },
+  "summary": "PlayKit IMA Plugin",
+  "homepage": "https://github.com/kaltura/playkit-ios-ima",
+  "source": {
+    "git": "https://github.com/kaltura/playkit-ios-ima.git",
+    "tag": "v1.7.1-dev"
+  },
+  "swift_versions": "5.0",
+  "source_files": "Sources/**/*",
+  "platforms": {
+    "ios": "9.0",
+    "tvos": "9.1"
+  },
+  "dependencies": {
+    "PlayKit": [
+      "~> 3.11"
+    ],
+    "XCGLogger": [
+      "7.0.0"
+    ]
+  },
+  "subspecs": [
+    {
+      "name": "iOS",
+      "ios": {
+        "dependencies": {
+          "GoogleAds-IMA-iOS-SDK": [
+            "3.11.1"
+          ]
+        }
+      }
+    },
+    {
+      "name": "tvOS",
+      "tvos": {
+        "dependencies": {
+          "GoogleAds-IMA-tvOS-SDK": [
+            "4.2.1"
+          ]
+        }
+      }
+    }
+  ],
+  "swift_version": "5.0"
+}

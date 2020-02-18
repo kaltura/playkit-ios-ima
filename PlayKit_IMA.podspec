@@ -12,8 +12,6 @@ Pod::Spec.new do |s|
   s.source           = { :git => 'https://github.com/kaltura/playkit-ios-ima.git', :tag => 'v' + s.version.to_s }
   s.swift_version    = '5.0'
   
-  s.source_files = 'Sources/**/*'
-  
   s.ios.deployment_target = '9.0'
   s.tvos.deployment_target = '9.1'
 
@@ -26,7 +24,17 @@ Pod::Spec.new do |s|
 
   s.dependency 'PlayKit', '~> 3.11'
   s.dependency 'XCGLogger', '7.0.0'
-  s.ios.dependency 'GoogleAds-IMA-iOS-SDK', '3.11.1'
-  s.tvos.dependency 'GoogleAds-IMA-tvOS-SDK', '4.2.1'
+
+  s.subspec 'iOS' do |sp|
+    sp.source_files = 'Sources/*.swift'
+    sp.dependency 'GoogleAds-IMA-iOS-SDK', '3.11.1'
+  end
+
+  s.subspec 'tvOS' do |sp|
+    sp.source_files = 'Sources/*.swift'
+    sp.dependency 'GoogleAds-IMA-tvOS-SDK', '4.2.1'
+  end
+
+  s.default_subspec = 'iOS'
 
 end

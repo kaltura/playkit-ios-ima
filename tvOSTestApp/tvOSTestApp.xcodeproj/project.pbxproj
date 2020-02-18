@@ -1,0 +1,414 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 51;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		54FEA67FE8419629BB5EB572 /* Pods_tvOSTestApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E10D3A721602D7564B26E736 /* Pods_tvOSTestApp.framework */; };
+		D2EB83C023FA9BDD0017DE1E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2EB83BF23FA9BDD0017DE1E /* AppDelegate.swift */; };
+		D2EB83C223FA9BDD0017DE1E /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2EB83C123FA9BDD0017DE1E /* ViewController.swift */; };
+		D2EB83C523FA9BDD0017DE1E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D2EB83C323FA9BDD0017DE1E /* Main.storyboard */; };
+		D2EB83C723FA9BE00017DE1E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D2EB83C623FA9BE00017DE1E /* Assets.xcassets */; };
+		D2EB83CA23FA9BE00017DE1E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D2EB83C823FA9BE00017DE1E /* LaunchScreen.storyboard */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		BCA9AB74B8686DA034A1D196 /* Pods-tvOSTestApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tvOSTestApp.debug.xcconfig"; path = "Target Support Files/Pods-tvOSTestApp/Pods-tvOSTestApp.debug.xcconfig"; sourceTree = "<group>"; };
+		CFDDC4EDF151EDF37D8FECB1 /* Pods-tvOSTestApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tvOSTestApp.release.xcconfig"; path = "Target Support Files/Pods-tvOSTestApp/Pods-tvOSTestApp.release.xcconfig"; sourceTree = "<group>"; };
+		D2EB83BC23FA9BDD0017DE1E /* tvOSTestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = tvOSTestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D2EB83BF23FA9BDD0017DE1E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		D2EB83C123FA9BDD0017DE1E /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		D2EB83C423FA9BDD0017DE1E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		D2EB83C623FA9BE00017DE1E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		D2EB83C923FA9BE00017DE1E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		D2EB83CB23FA9BE10017DE1E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E10D3A721602D7564B26E736 /* Pods_tvOSTestApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_tvOSTestApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D2EB83B923FA9BDD0017DE1E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				54FEA67FE8419629BB5EB572 /* Pods_tvOSTestApp.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		7B73C2AD295DD9F868CFADFF /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E10D3A721602D7564B26E736 /* Pods_tvOSTestApp.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		C4328C3B019787CE1BC8D190 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				BCA9AB74B8686DA034A1D196 /* Pods-tvOSTestApp.debug.xcconfig */,
+				CFDDC4EDF151EDF37D8FECB1 /* Pods-tvOSTestApp.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		D2EB83B323FA9BDD0017DE1E = {
+			isa = PBXGroup;
+			children = (
+				D2EB83BE23FA9BDD0017DE1E /* tvOSTestApp */,
+				D2EB83BD23FA9BDD0017DE1E /* Products */,
+				C4328C3B019787CE1BC8D190 /* Pods */,
+				7B73C2AD295DD9F868CFADFF /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		D2EB83BD23FA9BDD0017DE1E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D2EB83BC23FA9BDD0017DE1E /* tvOSTestApp.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D2EB83BE23FA9BDD0017DE1E /* tvOSTestApp */ = {
+			isa = PBXGroup;
+			children = (
+				D2EB83BF23FA9BDD0017DE1E /* AppDelegate.swift */,
+				D2EB83C123FA9BDD0017DE1E /* ViewController.swift */,
+				D2EB83C323FA9BDD0017DE1E /* Main.storyboard */,
+				D2EB83C623FA9BE00017DE1E /* Assets.xcassets */,
+				D2EB83C823FA9BE00017DE1E /* LaunchScreen.storyboard */,
+				D2EB83CB23FA9BE10017DE1E /* Info.plist */,
+			);
+			path = tvOSTestApp;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		D2EB83BB23FA9BDD0017DE1E /* tvOSTestApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D2EB83CE23FA9BE10017DE1E /* Build configuration list for PBXNativeTarget "tvOSTestApp" */;
+			buildPhases = (
+				36068ABEAC1F4F5E32E3D87C /* [CP] Check Pods Manifest.lock */,
+				D2EB83B823FA9BDD0017DE1E /* Sources */,
+				D2EB83B923FA9BDD0017DE1E /* Frameworks */,
+				D2EB83BA23FA9BDD0017DE1E /* Resources */,
+				E4CA3EF17734AEF032732869 /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = tvOSTestApp;
+			productName = tvOSTestApp;
+			productReference = D2EB83BC23FA9BDD0017DE1E /* tvOSTestApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D2EB83B423FA9BDD0017DE1E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1130;
+				LastUpgradeCheck = 1130;
+				ORGANIZATIONNAME = "Kaltura Inc.";
+				TargetAttributes = {
+					D2EB83BB23FA9BDD0017DE1E = {
+						CreatedOnToolsVersion = 11.3;
+					};
+				};
+			};
+			buildConfigurationList = D2EB83B723FA9BDD0017DE1E /* Build configuration list for PBXProject "tvOSTestApp" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = D2EB83B323FA9BDD0017DE1E;
+			productRefGroup = D2EB83BD23FA9BDD0017DE1E /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D2EB83BB23FA9BDD0017DE1E /* tvOSTestApp */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		D2EB83BA23FA9BDD0017DE1E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D2EB83CA23FA9BE00017DE1E /* LaunchScreen.storyboard in Resources */,
+				D2EB83C723FA9BE00017DE1E /* Assets.xcassets in Resources */,
+				D2EB83C523FA9BDD0017DE1E /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		36068ABEAC1F4F5E32E3D87C /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-tvOSTestApp-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E4CA3EF17734AEF032732869 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-tvOSTestApp/Pods-tvOSTestApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-tvOSTestApp/Pods-tvOSTestApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-tvOSTestApp/Pods-tvOSTestApp-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D2EB83B823FA9BDD0017DE1E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D2EB83C223FA9BDD0017DE1E /* ViewController.swift in Sources */,
+				D2EB83C023FA9BDD0017DE1E /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		D2EB83C323FA9BDD0017DE1E /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D2EB83C423FA9BDD0017DE1E /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		D2EB83C823FA9BE00017DE1E /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D2EB83C923FA9BE00017DE1E /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		D2EB83CC23FA9BE10017DE1E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = NO;
+				SDKROOT = appletvos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TVOS_DEPLOYMENT_TARGET = 9.1;
+			};
+			name = Debug;
+		};
+		D2EB83CD23FA9BE10017DE1E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = NO;
+				SDKROOT = appletvos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				TVOS_DEPLOYMENT_TARGET = 9.1;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		D2EB83CF23FA9BE10017DE1E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = BCA9AB74B8686DA034A1D196 /* Pods-tvOSTestApp.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = X8RDCFJK95;
+				INFOPLIST_FILE = tvOSTestApp/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kaltura.tvOSTestApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 9.1;
+			};
+			name = Debug;
+		};
+		D2EB83D023FA9BE10017DE1E /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = CFDDC4EDF151EDF37D8FECB1 /* Pods-tvOSTestApp.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = X8RDCFJK95;
+				INFOPLIST_FILE = tvOSTestApp/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kaltura.tvOSTestApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 9.1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		D2EB83B723FA9BDD0017DE1E /* Build configuration list for PBXProject "tvOSTestApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D2EB83CC23FA9BE10017DE1E /* Debug */,
+				D2EB83CD23FA9BE10017DE1E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D2EB83CE23FA9BE10017DE1E /* Build configuration list for PBXNativeTarget "tvOSTestApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D2EB83CF23FA9BE10017DE1E /* Debug */,
+				D2EB83D023FA9BE10017DE1E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = D2EB83B423FA9BDD0017DE1E /* Project object */;
+}
