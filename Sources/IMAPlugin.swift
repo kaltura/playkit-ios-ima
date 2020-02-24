@@ -215,11 +215,7 @@ enum IMAState: Int, StateProtocol {
             throw IMAPluginRequestError.emptyAdTag
         }
         
-        #if os(tvOS)
-            adDisplayContainer = IMAPlugin.createAdDisplayContainer(forView: playerView)
-        #else
-            adDisplayContainer = IMAPlugin.createAdDisplayContainer(forView: playerView, withCompanionView: self.config.companionView)
-        #endif
+        adDisplayContainer = IMAPlugin.createAdDisplayContainer(forView: playerView, withCompanionView: self.config.companionView)
         
         if let videoControlsOverlays = self.config?.videoControlsOverlays {
             for overlay in videoControlsOverlays {
@@ -361,10 +357,14 @@ enum IMAState: Int, StateProtocol {
         self.invalidateRequestTimer()
         self.stateMachine.set(state: .adsRequestFailed)
         
-        guard let adError = adErrorData.adError else { return }
-        PKLog.error(adError.message)
+        guard let adError = adErrorData.adError else {
+            PKLog.error("AdsLoader faild with error.")
+            return
+        }
+        let adErrorMessage: String = adError.message == nil ? "" : adError.message
+        PKLog.error(adErrorMessage)
         self.messageBus?.post(AdEvent.Error(nsError: IMAPluginError(adError: adError).asNSError))
-        self.delegate?.adsPlugin(self, loaderFailedWith: adError.message)
+        self.delegate?.adsPlugin(self, loaderFailedWith: adErrorMessage)
         
         // if the error relates to IMA SDK failed to load recreate loader instance.
         // otherwise loader will never work again
@@ -521,25 +521,6 @@ enum IMAState: Int, StateProtocol {
         self.setupLoader(with: self.config)
         IMAPlugin.loader.contentComplete()
         IMAPlugin.loader.delegate = self
-    }
-    
-    private static func createAdDisplayContainer(forView view: UIView) -> IMAAdDisplayContainer {
-        return IMAAdDisplayContainer(adContainer: view, companionSlots: [])
-    }
-    
-    @available(tvOS, unavailable)
-    private static func createAdDisplayContainer(forView view: UIView, withCompanionView companionView: UIView? = nil) -> IMAAdDisplayContainer {
-        // setup ad display container and companion if exists, needs to create a new ad container for each request.
-        if let cv = companionView {
-            #if os(iOS)
-                let companionAdSlot = IMACompanionAdSlot(view: companionView, width: Int(cv.frame.size.width), height: Int(cv.frame.size.height))
-                return IMAAdDisplayContainer(adContainer: view, companionSlots: [companionAdSlot!])
-            #else
-                return IMAAdDisplayContainer(adContainer: view, companionSlots: [])
-            #endif
-        } else {
-            return IMAAdDisplayContainer(adContainer: view, companionSlots: [])
-        }
     }
     
     private func createRenderingSettings() {

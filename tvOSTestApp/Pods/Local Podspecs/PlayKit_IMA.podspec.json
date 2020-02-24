@@ -15,7 +15,6 @@
     "tag": "v1.7.1-dev"
   },
   "swift_versions": "5.0",
-  "source_files": "Sources/**/*",
   "platforms": {
     "ios": "9.0",
     "tvos": "9.1"
@@ -28,25 +27,30 @@
       "7.0.0"
     ]
   },
+  "default_subspecs": "iOS",
   "subspecs": [
     {
       "name": "iOS",
-      "ios": {
-        "dependencies": {
-          "GoogleAds-IMA-iOS-SDK": [
-            "3.11.1"
-          ]
-        }
+      "source_files": [
+        "Sources/*.swift",
+        "Sources/iOS/*.swift"
+      ],
+      "dependencies": {
+        "GoogleAds-IMA-iOS-SDK": [
+          "3.11.1"
+        ]
       }
     },
     {
       "name": "tvOS",
-      "tvos": {
-        "dependencies": {
-          "GoogleAds-IMA-tvOS-SDK": [
-            "4.2.1"
-          ]
-        }
+      "source_files": [
+        "Sources/*.swift",
+        "Sources/tvOS/*.swift"
+      ],
+      "dependencies": {
+        "GoogleAds-IMA-tvOS-SDK": [
+          "4.2.1"
+        ]
       }
     }
   ],

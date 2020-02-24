@@ -166,6 +166,7 @@ if [[ "$CONFIGURATION" == "Debug" ]]; then
   install_framework "${BUILT_PRODUCTS_DIR}/ObjcExceptionBridging/ObjcExceptionBridging.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/PlayKit/PlayKit.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/PlayKitUtils/PlayKitUtils.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/PlayKit_IMA/PlayKit_IMA.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/XCGLogger/XCGLogger.framework"
 fi
@@ -175,6 +176,7 @@ if [[ "$CONFIGURATION" == "Release" ]]; then
   install_framework "${BUILT_PRODUCTS_DIR}/ObjcExceptionBridging/ObjcExceptionBridging.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/PlayKit/PlayKit.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/PlayKitUtils/PlayKitUtils.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/PlayKit_IMA/PlayKit_IMA.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/XCGLogger/XCGLogger.framework"
 fi

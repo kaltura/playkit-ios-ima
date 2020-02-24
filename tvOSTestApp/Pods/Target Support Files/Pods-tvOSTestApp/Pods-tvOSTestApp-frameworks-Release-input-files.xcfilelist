@@ -4,5 +4,6 @@ ${BUILT_PRODUCTS_DIR}/KalturaNetKit/KalturaNetKit.framework
 ${BUILT_PRODUCTS_DIR}/ObjcExceptionBridging/ObjcExceptionBridging.framework
 ${BUILT_PRODUCTS_DIR}/PlayKit/PlayKit.framework
 ${BUILT_PRODUCTS_DIR}/PlayKitUtils/PlayKitUtils.framework
+${BUILT_PRODUCTS_DIR}/PlayKit_IMA/PlayKit_IMA.framework
 ${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework
 ${BUILT_PRODUCTS_DIR}/XCGLogger/XCGLogger.framework

@@ -46,7 +46,7 @@ import GoogleInteractiveMediaAds
     
     // Extra Data
     public var requestTimeoutInterval: TimeInterval = IMAPlugin.defaultTimeoutInterval
-    public var companionView: UIView?
+    public var companionView: UIView? // CompanionView is not available on tvOS, it will be ignored.
     public var videoControlsOverlays: [UIView]?
     
     /// This boolean indicates whether or not to play the pre-roll when the start position is bigger then 0.

@@ -123,25 +123,6 @@ import PlayKitUtils
         setupLoader(with: self.pluginConfig)
     }
     
-    private static func createAdDisplayContainer(forView view: UIView) -> IMAAdDisplayContainer {
-        return IMAAdDisplayContainer(adContainer: view, companionSlots: [])
-    }
-    
-    @available(tvOS, unavailable)
-    private static func createAdDisplayContainer(forView view: UIView, withCompanionView companionView: UIView? = nil) -> IMAAdDisplayContainer {
-        // Setup ad display container and companion if exists, needs to create a new ad container for each request.
-        if let cv = companionView {
-            #if os(iOS)
-                let companionAdSlot = IMACompanionAdSlot(view: companionView, width: Int(cv.frame.size.width), height: Int(cv.frame.size.height))
-                return IMAAdDisplayContainer(adContainer: view, companionSlots: [companionAdSlot!])
-            #else
-                return IMAAdDisplayContainer(adContainer: view, companionSlots: [])
-            #endif
-        } else {
-            return IMAAdDisplayContainer(adContainer: view, companionSlots: [])
-        }
-    }
-    
     private func createRenderingSettings() {
         renderingSettings.webOpenerDelegate = self
         
@@ -213,11 +194,7 @@ import PlayKitUtils
             throw IMADAIPluginRequestError.missingPlayerView
         }
         
-        #if os(tvOS)
-            adDisplayContainer = IMADAIPlugin.createAdDisplayContainer(forView: playerView)
-        #else
-            adDisplayContainer = IMADAIPlugin.createAdDisplayContainer(forView: playerView, withCompanionView: pluginConfig.companionView)
-        #endif
+        adDisplayContainer = IMADAIPlugin.createAdDisplayContainer(forView: playerView, withCompanionView: pluginConfig.companionView)
         
         if let videoControlsOverlays = pluginConfig.videoControlsOverlays {
             for overlay in videoControlsOverlays {
@@ -426,10 +403,14 @@ import PlayKitUtils
         invalidateRequestTimer()
         stateMachine.set(state: .adsRequestFailed)
         
-        guard let adError = adErrorData.adError else { return }
-        PKLog.error(adError.message)
+        guard let adError = adErrorData.adError else {
+            PKLog.error("AdsLoader faild with error.")
+            return
+        }
+        let adErrorMessage: String = adError.message == nil ? "" : adError.message
+        PKLog.error(adErrorMessage)
         messageBus?.post(AdEvent.Error(nsError: IMAPluginError(adError: adError).asNSError))
-        delegate?.adsPlugin(self, loaderFailedWith: adError.message)
+        delegate?.adsPlugin(self, loaderFailedWith: adErrorMessage)
     }
     
     /************************************************************/
