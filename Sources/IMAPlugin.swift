@@ -121,12 +121,8 @@ enum IMAState: Int, StateProtocol {
         
         self.config = imaConfig
         self.requestTimeoutInterval = imaConfig.requestTimeoutInterval
-        if IMAPlugin.loader == nil {
-            self.setupLoader(with: imaConfig)
-        }
-        // whenever we create the plugin we need to set the loader's delegate to the new plugin object
-        IMAPlugin.loader.contentComplete()
-        IMAPlugin.loader.delegate = self
+        
+        self.createLoader()
         
         self.messageBus?.addObserver(self, events: [PlayerEvent.ended]) { [weak self] event in
             guard let self = self else { return }
@@ -519,7 +515,6 @@ enum IMAState: Int, StateProtocol {
     
     private func createLoader() {
         self.setupLoader(with: self.config)
-        IMAPlugin.loader.contentComplete()
         IMAPlugin.loader.delegate = self
     }
     
