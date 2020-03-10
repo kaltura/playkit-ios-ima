@@ -13,7 +13,7 @@ import PlayKit
 import PlayKitUtils
 
 /// `IMAState` represents `IMAPlugin` state machine states.
-enum IMAState: Int, StateProtocol {
+enum IMAState: Int, StateProtocol, CustomStringConvertible {
     /// initial state.
     case start = 0
     /// when request was interrupted by going to background.
@@ -35,6 +35,21 @@ enum IMAState: Int, StateProtocol {
     case adsPlaying
     /// content is playing.
     case contentPlaying
+    
+    var description: String {
+        switch self {
+        case .start: return "Start"
+        case .startAndRequest: return "StartAndRequest"
+        case .adsRequested: return "AdsRequested"
+        case .adsRequestedAndPlay: return "AdsRequestedAndPlay"
+        case .adsRequestFailed: return "AdsRequestFailed"
+        case .adsRequestTimedOut: return "AdsRequestTimedOut"
+        case .adsLoaded: return "AdsLoaded"
+        case .adsLoadedAndPlay: return "AdsLoadedAndPlay"
+        case .adsPlaying: return "AdsPlaying"
+        case .contentPlaying: return "contentPlaying"
+        }
+    }
 }
 
 @objc public class IMAPlugin: BasePlugin, PKPluginWarmUp, AdsPlugin, PlayerDecoratorProvider, PlayerEngineWrapperProvider, IMAAdsLoaderDelegate, IMAAdsManagerDelegate, IMAWebOpenerDelegate, IMAContentPlayhead {
@@ -196,7 +211,7 @@ enum IMAState: Int, StateProtocol {
     /************************************************************/
     
     public var isAdPlaying: Bool {
-        return self.stateMachine.getState() == .adsPlaying
+        return adsManager?.adPlaybackInfo.isPlaying ?? (self.stateMachine.getState() == .adsPlaying)
     }
     
     public var startWithPreroll: Bool {
@@ -318,8 +333,11 @@ enum IMAState: Int, StateProtocol {
     }
     
     public func willEnterForeground() {
-        if self.stateMachine.getState() == .startAndRequest {
+        switch self.stateMachine.getState() {
+        case .startAndRequest:
             try? self.requestAds()
+        default:
+            break
         }
     }
     
