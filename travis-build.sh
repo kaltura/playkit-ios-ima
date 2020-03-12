@@ -11,12 +11,21 @@ keepAlive() {
   done
 }
 
-buildApp() {
-  echo Building the test app
+buildiOSApp() {
+  echo Building the iOS test app
   cd iOSTestApp
   pod install
   CODE=0
   xcodebuild clean build -workspace iOSTestApp.xcworkspace -scheme iOSTestApp -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO -destination 'platform=iOS Simulator,name=iPhone X' | tee xcodebuild.log | xcpretty -r html || CODE=$?
+  export CODE
+}
+
+buildtvOSApp() {
+  echo Building the tvOS test app
+  cd tvOSTestApp
+  pod install
+  CODE=0
+  xcodebuild clean build -workspace tvOSTestApp.xcworkspace -scheme tvOSTestApp -destination 'platform=tvOS Simulator,name=Apple TV' | tee xcodebuild.log | xcpretty -r html || CODE=$?
   export CODE
 }
 
@@ -32,7 +41,8 @@ if [ -n "$TRAVIS_TAG" ] || [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then
   keepAlive $FLAG &
   libLint
 else
-  buildApp
+  buildiOSApp
+  buildtvOSApp
 fi
 
 rm $FLAG  # stop keepAlive
