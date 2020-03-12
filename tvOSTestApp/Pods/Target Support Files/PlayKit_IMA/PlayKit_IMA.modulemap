@@ -1,6 +1,0 @@
-framework module PlayKit_IMA {
-  umbrella header "PlayKit_IMA-umbrella.h"
-
-  export *
-  module * { export * }
-}
