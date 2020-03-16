@@ -13,7 +13,7 @@ import PlayKit
 import PlayKitUtils
 
 /// `IMAState` represents `IMAPlugin` state machine states.
-enum IMAState: Int, StateProtocol {
+enum IMAState: Int, StateProtocol, CustomStringConvertible {
     /// initial state.
     case start = 0
     /// when request was interrupted by going to background.
@@ -35,9 +35,24 @@ enum IMAState: Int, StateProtocol {
     case adsPlaying
     /// content is playing.
     case contentPlaying
+    
+    var description: String {
+        switch self {
+        case .start: return "Start"
+        case .startAndRequest: return "StartAndRequest"
+        case .adsRequested: return "AdsRequested"
+        case .adsRequestedAndPlay: return "AdsRequestedAndPlay"
+        case .adsRequestFailed: return "AdsRequestFailed"
+        case .adsRequestTimedOut: return "AdsRequestTimedOut"
+        case .adsLoaded: return "AdsLoaded"
+        case .adsLoadedAndPlay: return "AdsLoadedAndPlay"
+        case .adsPlaying: return "AdsPlaying"
+        case .contentPlaying: return "contentPlaying"
+        }
+    }
 }
 
-@objc public class IMAPlugin: BasePlugin, PKPluginWarmUp, PlayerDecoratorProvider, PlayerEngineWrapperProvider, PIPEnabledAdsPlugin, IMAAdsLoaderDelegate, IMAAdsManagerDelegate, IMAWebOpenerDelegate, IMAContentPlayhead {
+@objc public class IMAPlugin: BasePlugin, PKPluginWarmUp, AdsPlugin, PlayerDecoratorProvider, PlayerEngineWrapperProvider, IMAAdsLoaderDelegate, IMAAdsManagerDelegate, IMAWebOpenerDelegate, IMAContentPlayhead {
 
     // internal errors for requesting ads
     enum IMAPluginRequestError: Error {
@@ -54,7 +69,9 @@ enum IMAState: Int, StateProtocol {
         }
     }
     weak public var delegate: AdsPluginDelegate?
+    #if os(iOS)
     weak public var pipDelegate: AVPictureInPictureControllerDelegate?
+    #endif
     
     /// The IMA plugin state machine
     private var stateMachine = BasicStateMachine(initialState: IMAState.start, allowTransitionToInitialState: false)
@@ -119,12 +136,8 @@ enum IMAState: Int, StateProtocol {
         
         self.config = imaConfig
         self.requestTimeoutInterval = imaConfig.requestTimeoutInterval
-        if IMAPlugin.loader == nil {
-            self.setupLoader(with: imaConfig)
-        }
-        // whenever we create the plugin we need to set the loader's delegate to the new plugin object
-        IMAPlugin.loader.contentComplete()
-        IMAPlugin.loader.delegate = self
+        
+        self.createLoader()
         
         self.messageBus?.addObserver(self, events: [PlayerEvent.ended]) { [weak self] event in
             guard let self = self else { return }
@@ -198,7 +211,7 @@ enum IMAState: Int, StateProtocol {
     /************************************************************/
     
     public var isAdPlaying: Bool {
-        return self.stateMachine.getState() == .adsPlaying
+        return adsManager?.adPlaybackInfo.isPlaying ?? (self.stateMachine.getState() == .adsPlaying)
     }
     
     public var startWithPreroll: Bool {
@@ -320,8 +333,11 @@ enum IMAState: Int, StateProtocol {
     }
     
     public func willEnterForeground() {
-        if self.stateMachine.getState() == .startAndRequest {
+        switch self.stateMachine.getState() {
+        case .startAndRequest:
             try? self.requestAds()
+        default:
+            break
         }
     }
     
@@ -355,10 +371,14 @@ enum IMAState: Int, StateProtocol {
         self.invalidateRequestTimer()
         self.stateMachine.set(state: .adsRequestFailed)
         
-        guard let adError = adErrorData.adError else { return }
-        PKLog.error(adError.message)
+        guard let adError = adErrorData.adError else {
+            PKLog.error("AdsLoader faild with error.")
+            return
+        }
+        let adErrorMessage: String = adError.message == nil ? "" : adError.message
+        PKLog.error(adErrorMessage)
         self.messageBus?.post(AdEvent.Error(nsError: IMAPluginError(adError: adError).asNSError))
-        self.delegate?.adsPlugin(self, loaderFailedWith: adError.message)
+        self.delegate?.adsPlugin(self, loaderFailedWith: adErrorMessage)
         
         // if the error relates to IMA SDK failed to load recreate loader instance.
         // otherwise loader will never work again
@@ -466,7 +486,7 @@ enum IMAState: Int, StateProtocol {
             self.notify(event: AdEvent.AdThirdQuartile())
             
         // Only used for dynamic ad insertion (not officially supported)
-        case .AD_BREAK_ENDED, .AD_BREAK_STARTED, .CUEPOINTS_CHANGED, .STREAM_LOADED, .STREAM_STARTED, .AD_PERIOD_STARTED, .AD_PERIOD_ENDED:
+        case .AD_BREAK_ENDED, .AD_BREAK_STARTED, .CUEPOINTS_CHANGED, .STREAM_LOADED, .STREAM_STARTED, .AD_PERIOD_STARTED, .AD_PERIOD_ENDED, .AD_BREAK_FETCH_ERROR:
             break
         @unknown default:
             break
@@ -513,18 +533,7 @@ enum IMAState: Int, StateProtocol {
     
     private func createLoader() {
         self.setupLoader(with: self.config)
-        IMAPlugin.loader.contentComplete()
         IMAPlugin.loader.delegate = self
-    }
-    
-    private static func createAdDisplayContainer(forView view: UIView, withCompanionView companionView: UIView? = nil) -> IMAAdDisplayContainer {
-        // setup ad display container and companion if exists, needs to create a new ad container for each request.
-        if let cv = companionView {
-            let companionAdSlot = IMACompanionAdSlot(view: companionView, width: Int(cv.frame.size.width), height: Int(cv.frame.size.height))
-            return IMAAdDisplayContainer(adContainer: view, companionSlots: [companionAdSlot!])
-        } else {
-            return IMAAdDisplayContainer(adContainer: view, companionSlots: [])
-        }
     }
     
     private func createRenderingSettings() {
@@ -610,6 +619,34 @@ enum IMAState: Int, StateProtocol {
     }
     
     /************************************************************/
+    // MARK: - IMAWebOpenerDelegate
+    /************************************************************/
+    
+    @objc public func webOpenerWillOpenExternalBrowser(_ webOpener: NSObject) {
+        self.notify(event: AdEvent.AdWebOpenerWillOpenExternalBrowser(webOpener: webOpener))
+    }
+    
+    @objc public func webOpenerWillOpen(inAppBrowser webOpener: NSObject!) {
+        self.notify(event: AdEvent.AdWebOpenerWillOpenInAppBrowser(webOpener: webOpener))
+    }
+    
+    @objc public func webOpenerDidOpen(inAppBrowser webOpener: NSObject!) {
+        self.notify(event: AdEvent.AdWebOpenerDidOpenInAppBrowser(webOpener: webOpener))
+    }
+    
+    @objc public func webOpenerWillClose(inAppBrowser webOpener: NSObject!) {
+        self.notify(event: AdEvent.AdWebOpenerWillCloseInAppBrowser(webOpener: webOpener))
+    }
+    
+    @objc public func webOpenerDidClose(inAppBrowser webOpener: NSObject!) {
+        self.notify(event: AdEvent.AdWebOpenerDidCloseInAppBrowser(webOpener: webOpener))
+    }
+}
+
+#if os(iOS)
+extension IMAPlugin: PIPEnabledAdsPlugin {
+    
+    /************************************************************/
     // MARK: - AVPictureInPictureControllerDelegate
     /************************************************************/
     
@@ -642,28 +679,5 @@ enum IMAState: Int, StateProtocol {
     @objc public func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {
         self.pipDelegate?.pictureInPictureController?(pictureInPictureController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler: completionHandler)
     }
-
-    /************************************************************/
-    // MARK: - IMAWebOpenerDelegate
-    /************************************************************/
-    
-    @objc public func webOpenerWillOpenExternalBrowser(_ webOpener: NSObject) {
-        self.notify(event: AdEvent.AdWebOpenerWillOpenExternalBrowser(webOpener: webOpener))
-    }
-    
-    @objc public func webOpenerWillOpen(inAppBrowser webOpener: NSObject!) {
-        self.notify(event: AdEvent.AdWebOpenerWillOpenInAppBrowser(webOpener: webOpener))
-    }
-    
-    @objc public func webOpenerDidOpen(inAppBrowser webOpener: NSObject!) {
-        self.notify(event: AdEvent.AdWebOpenerDidOpenInAppBrowser(webOpener: webOpener))
-    }
-    
-    @objc public func webOpenerWillClose(inAppBrowser webOpener: NSObject!) {
-        self.notify(event: AdEvent.AdWebOpenerWillCloseInAppBrowser(webOpener: webOpener))
-    }
-    
-    @objc public func webOpenerDidClose(inAppBrowser webOpener: NSObject!) {
-        self.notify(event: AdEvent.AdWebOpenerDidCloseInAppBrowser(webOpener: webOpener))
-    }
 }
+#endif

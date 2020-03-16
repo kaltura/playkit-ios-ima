@@ -24,7 +24,7 @@ struct IMAPluginError: PKError {
     }
     
     var errorDescription: String {
-        return adError.message
+        return adError.message ?? ""
     }
     
     var userInfo: [String: Any] {

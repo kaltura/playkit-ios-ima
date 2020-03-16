@@ -41,7 +41,7 @@ import GoogleInteractiveMediaAds
     // Extra Data
     /// Ads request timeout interval, when ads request will take more then this time, will resume content.
     @objc public var requestTimeoutInterval: TimeInterval = IMAPlugin.defaultTimeoutInterval
-    @objc public var companionView: UIView?
+    @objc public var companionView: UIView? // CompanionView is not available on tvOS, it will be ignored.
     @objc public var videoControlsOverlays: [UIView]?
     
     /// This boolean indicates whether or not to play the pre-roll when the start position is bigger then 0.
@@ -116,6 +116,7 @@ import GoogleInteractiveMediaAds
     }
     
     @discardableResult
+    @available(tvOS, unavailable, message: "CompanionView is not available on tvOS.")
     @nonobjc public func set(companionView: UIView) -> Self {
         self.companionView = companionView
         return self

@@ -12,18 +12,22 @@ Pod::Spec.new do |s|
   s.source           = { :git => 'https://github.com/kaltura/playkit-ios-ima.git', :tag => 'v' + s.version.to_s }
   s.swift_version    = '5.0'
   
-  s.source_files = 'Sources/**/*'
-  
   s.ios.deployment_target = '9.0'
-
-  s.xcconfig = { 
-        'CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES' => 'YES',
-        'OTHER_LDFLAGS' => '$(inherited) -framework "GoogleInteractiveMediaAds"',
-        'FRAMEWORK_SEARCH_PATHS' => '$(inherited) "${PODS_ROOT}"/**',
-        'LIBRARY_SEARCH_PATHS' => '$(inherited) "${PODS_ROOT}"/**' 
-  }
+  s.tvos.deployment_target = '9.1'
 
   s.dependency 'PlayKit', '~> 3.11'
   s.dependency 'XCGLogger', '7.0.0'
-  s.dependency 'GoogleAds-IMA-iOS-SDK', '3.9.0'
+
+  s.subspec 'iOS' do |sp|
+    sp.source_files = 'Sources/*.swift', 'Sources/iOS/*.swift'
+    sp.dependency 'GoogleAds-IMA-iOS-SDK', '3.11.1'
+  end
+
+  s.subspec 'tvOS' do |sp|
+    sp.source_files = 'Sources/*.swift', 'Sources/tvOS/*.swift'
+    sp.dependency 'GoogleAds-IMA-tvOS-SDK', '4.2.1'
+  end
+
+  s.default_subspec = 'iOS'
+
 end
