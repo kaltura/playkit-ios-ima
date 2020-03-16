@@ -42,6 +42,7 @@ if [ -n "$TRAVIS_TAG" ] || [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then
   libLint
 else
   buildiOSApp
+  cd ../
   buildtvOSApp
 fi
 
