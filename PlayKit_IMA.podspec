@@ -18,16 +18,10 @@ Pod::Spec.new do |s|
   s.dependency 'PlayKit', '~> 3.11'
   s.dependency 'XCGLogger', '7.0.0'
 
-  s.subspec 'iOS' do |sp|
-    sp.source_files = 'Sources/*.swift', 'Sources/iOS/*.swift'
-    sp.dependency 'GoogleAds-IMA-iOS-SDK', '3.11.1'
-  end
+  s.ios.source_files = 'Sources/*.swift', 'Sources/iOS/*.swift'
+  s.tvos.source_files = 'Sources/*.swift', 'Sources/tvOS/*.swift'
 
-  s.subspec 'tvOS' do |sp|
-    sp.source_files = 'Sources/*.swift', 'Sources/tvOS/*.swift'
-    sp.dependency 'GoogleAds-IMA-tvOS-SDK', '4.2.1'
-  end
-
-  s.default_subspec = 'iOS'
+  s.ios.dependency 'GoogleAds-IMA-iOS-SDK', '3.11.1'
+  s.tvos.dependency 'GoogleAds-IMA-tvOS-SDK', '4.2.1'
 
 end
