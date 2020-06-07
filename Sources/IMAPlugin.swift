@@ -188,6 +188,8 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
         self.requestTimeoutTimer?.invalidate()
         self.requestTimeoutTimer = nil
         self.destroyManager()
+        
+        self.adDisplayContainer?.unregisterAllFriendlyObstructions()
     }
     
     /************************************************************/
@@ -228,9 +230,10 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
         
         adDisplayContainer = IMAPlugin.createAdDisplayContainer(forView: playerView, withCompanionView: self.config.companionView)
         
+        self.adDisplayContainer?.unregisterAllFriendlyObstructions()
         if let videoControlsOverlays = self.config?.videoControlsOverlays {
             for overlay in videoControlsOverlays {
-                adDisplayContainer?.registerVideoControlsOverlay(overlay)
+                adDisplayContainer?.register(IMAFriendlyObstruction(view: overlay, purpose: .mediaControls, detailedReason: nil))
             }
         }
         
@@ -305,8 +308,6 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
         self.adsManager = nil
         // reset the state machine
         self.stateMachine.reset()
-        
-        self.adDisplayContainer?.unregisterAllVideoControlsOverlays()
     }
     
     // when play() was used set state to content playing

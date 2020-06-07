@@ -91,6 +91,8 @@ import PlayKitUtils
     public override func destroy() {
         self.destroyManager()
         super.destroy()
+        
+        self.adDisplayContainer?.unregisterAllFriendlyObstructions()
     }
     
     /************************************************************/
@@ -196,9 +198,10 @@ import PlayKitUtils
         
         adDisplayContainer = IMADAIPlugin.createAdDisplayContainer(forView: playerView, withCompanionView: pluginConfig.companionView)
         
+        self.adDisplayContainer?.unregisterAllFriendlyObstructions()
         if let videoControlsOverlays = pluginConfig.videoControlsOverlays {
             for overlay in videoControlsOverlays {
-                adDisplayContainer?.registerVideoControlsOverlay(overlay)
+                adDisplayContainer?.register(IMAFriendlyObstruction(view: overlay, purpose: .mediaControls, detailedReason: nil))
             }
         }
         
@@ -281,8 +284,6 @@ import PlayKitUtils
         
         // Reset the state machine
         stateMachine.reset()
-        
-        adDisplayContainer?.unregisterAllVideoControlsOverlays()
     }
     
     public func didPlay() {
