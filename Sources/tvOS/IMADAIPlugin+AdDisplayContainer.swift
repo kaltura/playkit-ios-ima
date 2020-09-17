@@ -11,8 +11,8 @@
 import GoogleInteractiveMediaAds
 
 extension IMADAIPlugin {
-    static func createAdDisplayContainer(forView view: UIView, withCompanionView companionView: UIView? = nil) -> IMAAdDisplayContainer {
+    static func createAdDisplayContainer(forView view: UIView, viewController: UIViewController?, withCompanionView companionView: UIView? = nil) -> IMAAdDisplayContainer {
         // tvOS doesn't support companionView.
-        return IMAAdDisplayContainer(adContainer: view)
+        return IMAAdDisplayContainer(adContainer: view, viewController: viewController)
     }
 }
