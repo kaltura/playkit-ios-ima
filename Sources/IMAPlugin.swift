@@ -228,7 +228,7 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
             throw IMAPluginRequestError.emptyAdTag
         }
         
-        adDisplayContainer = IMAPlugin.createAdDisplayContainer(forView: playerView, withCompanionView: self.config.companionView)
+        adDisplayContainer = IMAPlugin.createAdDisplayContainer(forView: playerView, viewController: playerView.findViewController(), withCompanionView: self.config.companionView)
         
         self.adDisplayContainer?.unregisterAllFriendlyObstructions()
         if let videoControlsOverlays = self.config?.videoControlsOverlays {
