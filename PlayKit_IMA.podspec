@@ -21,7 +21,7 @@ Pod::Spec.new do |s|
   s.ios.source_files = 'Sources/*.swift', 'Sources/iOS/*.swift'
   s.tvos.source_files = 'Sources/*.swift', 'Sources/tvOS/*.swift'
 
-  s.ios.dependency 'GoogleAds-IMA-iOS-SDK', '3.12.1'
+  s.ios.dependency 'GoogleAds-IMA-iOS-SDK', '3.13.0'
   s.tvos.dependency 'GoogleAds-IMA-tvOS-SDK', '4.3.2'
 
 end
