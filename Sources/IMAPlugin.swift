@@ -489,6 +489,11 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
         // Only used for dynamic ad insertion (not officially supported)
         case .AD_BREAK_ENDED, .AD_BREAK_STARTED, .CUEPOINTS_CHANGED, .STREAM_LOADED, .STREAM_STARTED, .AD_PERIOD_STARTED, .AD_PERIOD_ENDED, .AD_BREAK_FETCH_ERROR:
             break
+        // This event only fires for tvOS
+        case .ICON_FALLBACK_IMAGE_CLOSED:
+            break
+        case .ICON_TAPPED:
+            break
         @unknown default:
             break
         }
