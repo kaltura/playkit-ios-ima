@@ -16,8 +16,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		BCA9AB74B8686DA034A1D196 /* Pods-tvOSTestApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tvOSTestApp.debug.xcconfig"; path = "Target Support Files/Pods-tvOSTestApp/Pods-tvOSTestApp.debug.xcconfig"; sourceTree = "<group>"; };
-		CFDDC4EDF151EDF37D8FECB1 /* Pods-tvOSTestApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tvOSTestApp.release.xcconfig"; path = "Target Support Files/Pods-tvOSTestApp/Pods-tvOSTestApp.release.xcconfig"; sourceTree = "<group>"; };
+		76003F4EBDE049415E583B80 /* Pods-tvOSTestApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tvOSTestApp.release.xcconfig"; path = "Target Support Files/Pods-tvOSTestApp/Pods-tvOSTestApp.release.xcconfig"; sourceTree = "<group>"; };
+		C5CA4BFAFACA6B542507A344 /* Pods-tvOSTestApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tvOSTestApp.debug.xcconfig"; path = "Target Support Files/Pods-tvOSTestApp/Pods-tvOSTestApp.debug.xcconfig"; sourceTree = "<group>"; };
 		D2EB83BC23FA9BDD0017DE1E /* tvOSTestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = tvOSTestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D2EB83BF23FA9BDD0017DE1E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D2EB83C123FA9BDD0017DE1E /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -51,8 +51,8 @@
 		C4328C3B019787CE1BC8D190 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				BCA9AB74B8686DA034A1D196 /* Pods-tvOSTestApp.debug.xcconfig */,
-				CFDDC4EDF151EDF37D8FECB1 /* Pods-tvOSTestApp.release.xcconfig */,
+				C5CA4BFAFACA6B542507A344 /* Pods-tvOSTestApp.debug.xcconfig */,
+				76003F4EBDE049415E583B80 /* Pods-tvOSTestApp.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -280,14 +280,13 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = appletvos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				TVOS_DEPLOYMENT_TARGET = 9.1;
+				TVOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Debug;
 		};
@@ -335,25 +334,25 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = appletvos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
-				TVOS_DEPLOYMENT_TARGET = 9.1;
+				TVOS_DEPLOYMENT_TARGET = 10.0;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
 		D2EB83CF23FA9BE10017DE1E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = BCA9AB74B8686DA034A1D196 /* Pods-tvOSTestApp.debug.xcconfig */;
+			baseConfigurationReference = C5CA4BFAFACA6B542507A344 /* Pods-tvOSTestApp.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = X8RDCFJK95;
+				"EXCLUDED_ARCHS[sdk=appletvsimulator*]" = arm64;
 				INFOPLIST_FILE = tvOSTestApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -363,13 +362,13 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 3;
-				TVOS_DEPLOYMENT_TARGET = 9.1;
+				TVOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Debug;
 		};
 		D2EB83D023FA9BE10017DE1E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = CFDDC4EDF151EDF37D8FECB1 /* Pods-tvOSTestApp.release.xcconfig */;
+			baseConfigurationReference = 76003F4EBDE049415E583B80 /* Pods-tvOSTestApp.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				CODE_SIGN_STYLE = Automatic;
@@ -383,7 +382,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 3;
-				TVOS_DEPLOYMENT_TARGET = 9.1;
+				TVOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Release;
 		};

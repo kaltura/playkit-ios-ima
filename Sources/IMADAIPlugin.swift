@@ -196,7 +196,7 @@ import PlayKitUtils
             throw IMADAIPluginRequestError.missingPlayerView
         }
         
-        adDisplayContainer = IMADAIPlugin.createAdDisplayContainer(forView: playerView, withCompanionView: pluginConfig.companionView)
+        adDisplayContainer = IMADAIPlugin.createAdDisplayContainer(forView: playerView, viewController: playerView.findViewController(), withCompanionView: pluginConfig.companionView)
         
         self.adDisplayContainer?.unregisterAllFriendlyObstructions()
         if let videoControlsOverlays = pluginConfig.videoControlsOverlays {

@@ -12,16 +12,21 @@ Pod::Spec.new do |s|
   s.source           = { :git => 'https://github.com/kaltura/playkit-ios-ima.git', :tag => 'v' + s.version.to_s }
   s.swift_version    = '5.0'
   
-  s.ios.deployment_target = '9.0'
-  s.tvos.deployment_target = '9.1'
+  s.ios.deployment_target = '10.0'
+  s.tvos.deployment_target = '10.0'
 
-  s.dependency 'PlayKit', '~> 3.11'
-  s.dependency 'XCGLogger', '7.0.0'
+  s.dependency 'PlayKit', '~> 3.18'
 
   s.ios.source_files = 'Sources/*.swift', 'Sources/iOS/*.swift'
   s.tvos.source_files = 'Sources/*.swift', 'Sources/tvOS/*.swift'
 
-  s.ios.dependency 'GoogleAds-IMA-iOS-SDK', '3.11.3'
-  s.tvos.dependency 'GoogleAds-IMA-tvOS-SDK', '4.2.1'
+  s.ios.dependency 'GoogleAds-IMA-iOS-SDK', '3.13.0'
+  s.tvos.dependency 'GoogleAds-IMA-tvOS-SDK', '4.3.2'
+
+  s.xcconfig = {
+### The following is required for Xcode 12 (https://stackoverflow.com/questions/63607158/xcode-12-building-for-ios-simulator-but-linking-in-object-file-built-for-ios)
+    'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64',
+    'EXCLUDED_ARCHS[sdk=appletvsimulator*]' => 'arm64'
+  }
 
 end

@@ -228,7 +228,7 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
             throw IMAPluginRequestError.emptyAdTag
         }
         
-        adDisplayContainer = IMAPlugin.createAdDisplayContainer(forView: playerView, withCompanionView: self.config.companionView)
+        adDisplayContainer = IMAPlugin.createAdDisplayContainer(forView: playerView, viewController: playerView.findViewController(), withCompanionView: self.config.companionView)
         
         self.adDisplayContainer?.unregisterAllFriendlyObstructions()
         if let videoControlsOverlays = self.config?.videoControlsOverlays {
@@ -488,6 +488,11 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
             
         // Only used for dynamic ad insertion (not officially supported)
         case .AD_BREAK_ENDED, .AD_BREAK_STARTED, .CUEPOINTS_CHANGED, .STREAM_LOADED, .STREAM_STARTED, .AD_PERIOD_STARTED, .AD_PERIOD_ENDED, .AD_BREAK_FETCH_ERROR:
+            break
+        // This event only fires for tvOS
+        case .ICON_FALLBACK_IMAGE_CLOSED:
+            break
+        case .ICON_TAPPED:
             break
         @unknown default:
             break

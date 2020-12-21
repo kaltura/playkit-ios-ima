@@ -11,13 +11,13 @@
 import GoogleInteractiveMediaAds
 
 extension IMAPlugin {
-    static func createAdDisplayContainer(forView view: UIView, withCompanionView companionView: UIView? = nil) -> IMAAdDisplayContainer {
+    static func createAdDisplayContainer(forView view: UIView, viewController: UIViewController?, withCompanionView companionView: UIView? = nil) -> IMAAdDisplayContainer {
         // Setup ad display container and companion if exists, needs to create a new ad container for each request.
         if let cv = companionView {
             let companionAdSlot = IMACompanionAdSlot(view: companionView, width: Int(cv.frame.size.width), height: Int(cv.frame.size.height))
-            return IMAAdDisplayContainer(adContainer: view, companionSlots: [companionAdSlot!])
+            return IMAAdDisplayContainer(adContainer: view, viewController: viewController, companionSlots: [companionAdSlot!])
         } else {
-            return IMAAdDisplayContainer(adContainer: view, companionSlots: [])
+            return IMAAdDisplayContainer(adContainer: view, viewController: viewController, companionSlots: [])
         }
     }
 }
