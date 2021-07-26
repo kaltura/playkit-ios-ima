@@ -6,7 +6,23 @@ import PlayKit
 
 @objc public class PKIMAVideoDisplay: NSObject, IMAVideoDisplay, AdsDAIPlayerEngineWrapperDelegate {
     
-    public var delegate: IMAVideoDisplayDelegate!
+    #if os(tvOS)
+    @available(tvOS 14.0, *)
+    private(set) lazy public var nowPlayingSession = MPNowPlayingSession(players: [
+        self.currentPlayerPlayer()
+    ])
+    #endif
+    
+    func currentPlayerPlayer() -> AVPlayer {
+        if let avPlayerWrapper = self.adsDAIPlayerEngineWrapper.playerEngine as? AVPlayerWrapper {
+            return avPlayerWrapper.currentPlayer
+        } else {
+            // This workaround we need for not to use force unwpapping.
+            return AVPlayer()
+        }
+    }
+    
+    public var delegate: IMAVideoDisplayDelegate?
     private var adsDAIPlayerEngineWrapper: AdsDAIPlayerEngineWrapper
 
     private var isAdPlaying: Bool = false
@@ -112,7 +128,7 @@ import PlayKit
         }
         adCurrentTime = currentPosition - adStartTime
         if currentPosition > adStartTime, adCurrentTime < adDuration {
-            delegate.videoDisplay(self, didProgressWithMediaTime: currentPosition, totalTime: adDuration)
+            delegate?.videoDisplay(self, didProgressWithMediaTime: currentPosition, totalTime: adDuration)
         } else
         
         // The adCompleted func was not called, apparently this is a PostRoll
@@ -131,11 +147,11 @@ import PlayKit
         }
         set {
             adsDAIPlayerEngineWrapper.volume = newValue
-            delegate.videoDisplay(self, volumeChangedTo: NSNumber(value: newValue))
+            delegate?.videoDisplay(self, volumeChangedTo: NSNumber(value: newValue))
         }
     }
     
-    public func loadStream(_ streamURL: URL!, withSubtitles subtitles: [Any]!) {
+    public func loadStream(_ streamURL: URL, withSubtitles subtitles: [[String : String]]) {
         adsDAIPlayerEngineWrapper.loadStream(streamURL)
     }
     
@@ -200,7 +216,7 @@ import PlayKit
     // ********************************************
     
     public func streamStarted() {
-        delegate.videoDisplayDidStart(self)
+        delegate?.videoDisplayDidStart(self)
     }
     
     public func adPlaying(startTime: TimeInterval, duration: TimeInterval) {
@@ -209,7 +225,7 @@ import PlayKit
         adDuration = duration
         adCurrentTime = 0
         
-        delegate.videoDisplayDidLoad(self)
+        delegate?.videoDisplayDidLoad(self)
         
         if adTimer == nil {
             adTimer = Timer.scheduledTimer(timeInterval: adTimerInterval,
@@ -222,11 +238,11 @@ import PlayKit
     }
     
     public func adPaused() {
-        delegate.videoDisplayDidPause(self)
+        delegate?.videoDisplayDidPause(self)
     }
     
     public func adResumed() {
-        delegate.videoDisplayDidResume(self)
+        delegate?.videoDisplayDidResume(self)
     }
     
     public func adCompleted() {
@@ -234,8 +250,8 @@ import PlayKit
         adTimer = nil
         
         let endTime = adStartTime + adDuration
-        delegate.videoDisplay(self, didProgressWithMediaTime: endTime, totalTime: adDuration)
-        delegate.videoDisplayDidComplete(self)
+        delegate?.videoDisplay(self, didProgressWithMediaTime: endTime, totalTime: adDuration)
+        delegate?.videoDisplayDidComplete(self)
         isAdPlaying = false
         adStartTime = 0
         adDuration = 0
@@ -243,7 +259,7 @@ import PlayKit
     }
     
     public func receivedTimedMetadata(_ metadata: [String : String]) {
-        delegate.videoDisplay(self, didReceiveTimedMetadata: metadata)
+        delegate?.videoDisplay(self, didReceiveTimedMetadata: metadata)
     }
 }
 
@@ -258,40 +274,40 @@ extension PKIMAVideoDisplay: IMAVideoDisplayDelegate {
         // Resume
     }
     
-    public func videoDisplayDidPause(_ videoDisplay: IMAVideoDisplay!) {
+    public func videoDisplayDidPause(_ videoDisplay: IMAVideoDisplay) {
     }
     
-    public func videoDisplayDidResume(_ videoDisplay: IMAVideoDisplay!) {
+    public func videoDisplayDidResume(_ videoDisplay: IMAVideoDisplay) {
     }
     
-    public func videoDisplayDidStart(_ videoDisplay: IMAVideoDisplay!) {
+    public func videoDisplayDidStart(_ videoDisplay: IMAVideoDisplay) {
         // Stream Started
     }
     
-    public func videoDisplayDidComplete(_ videoDisplay: IMAVideoDisplay!) {
+    public func videoDisplayDidComplete(_ videoDisplay: IMAVideoDisplay) {
     }
     
-    public func videoDisplayDidClick(_ videoDisplay: IMAVideoDisplay!) {
+    public func videoDisplayDidClick(_ videoDisplay: IMAVideoDisplay) {
     }
     
-    public func videoDisplay(_ videoDisplay: IMAVideoDisplay!, didReceiveError error: Error!) {
+    public func videoDisplay(_ videoDisplay: IMAVideoDisplay, didReceiveError error: Error) {
     }
     
-    public func videoDisplayDidSkip(_ videoDisplay: IMAVideoDisplay!) {
+    public func videoDisplayDidSkip(_ videoDisplay: IMAVideoDisplay) {
     }
     
-    public func videoDisplayDidShowSkip(_ videoDisplay: IMAVideoDisplay!) {
+    public func videoDisplayDidShowSkip(_ videoDisplay: IMAVideoDisplay) {
     }
     
-    public func videoDisplayDidLoad(_ videoDisplay: IMAVideoDisplay!) {
+    public func videoDisplayDidLoad(_ videoDisplay: IMAVideoDisplay) {
     }
     
-    public func videoDisplay(_ videoDisplay: IMAVideoDisplay!, volumeChangedTo volume: NSNumber!) {
+    public func videoDisplay(_ videoDisplay: IMAVideoDisplay, volumeChangedTo volume: NSNumber) {
     }
     
-    public func videoDisplay(_ videoDisplay: IMAVideoDisplay!, didProgressWithMediaTime mediaTime: TimeInterval, totalTime duration: TimeInterval) {
+    public func videoDisplay(_ videoDisplay: IMAVideoDisplay, didProgressWithMediaTime mediaTime: TimeInterval, totalTime duration: TimeInterval) {
     }
     
-    public func videoDisplay(_ videoDisplay: IMAVideoDisplay!, didReceiveTimedMetadata metadata: [String : String]!) {
+    public func videoDisplay(_ videoDisplay: IMAVideoDisplay, didReceiveTimedMetadata metadata: [String : String]) {
     }
 }
