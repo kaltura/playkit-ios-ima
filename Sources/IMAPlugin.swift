@@ -606,7 +606,9 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
     }
     
     private func shouldDiscard(ad: IMAAd, currentState: IMAState) -> Bool {
-        let adInfo = PKAdInfo(ad: ad)
+        let adInfo = PKAdInfo(ad: ad,
+                              podCount: nil,
+                              adPlayHead: adsManager?.adPlaybackInfo.currentMediaTime)
         let isPreRollInvalid = adInfo.positionType == .preRoll && (currentState == .adsRequestTimedOut || currentState == .contentPlaying)
         if isPreRollInvalid {
             return true

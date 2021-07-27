@@ -421,6 +421,8 @@ import PlayKitUtils
     public func streamManager(_ streamManager: IMAStreamManager!, didReceive event: IMAAdEvent!) {
         PKLog.trace("Stream manager event: " + event.typeString)
         
+        let adPlayHead = streamManager?.streamTime(forContentTime: self.currentTime)
+        
         switch event.type {
         case .CUEPOINTS_CHANGED:
             guard let adData = event.adData else { return }
@@ -443,10 +445,14 @@ import PlayKitUtils
                 }
             }
         case .LOADED:
-            let adEvent = event.ad != nil ? AdEvent.AdLoaded(adInfo: PKAdInfo(ad: event.ad)) : AdEvent.AdLoaded()
+            let adEvent = event.ad != nil ? AdEvent.AdLoaded(adInfo: PKAdInfo(ad: event.ad,
+                                                                              podCount: nil,
+                                                                              adPlayHead: adPlayHead)) : AdEvent.AdLoaded()
             self.notify(event: adEvent)
         case .STARTED:
-            let event = event.ad != nil ? AdEvent.AdStarted(adInfo: PKAdInfo(ad: event.ad)) : AdEvent.AdStarted()
+            let event = event.ad != nil ? AdEvent.AdStarted(adInfo: PKAdInfo(ad: event.ad,
+                                                                             podCount: nil,
+                                                                             adPlayHead: adPlayHead)) : AdEvent.AdStarted()
             self.notify(event: event)
         case .FIRST_QUARTILE:
             self.notify(event: AdEvent.AdFirstQuartile())
