@@ -421,7 +421,9 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
             } else {
                 var adEvent = AdEvent.AdLoaded()
                 if event.ad != nil {
-                    let adInfo = PKAdInfo(ad: event.ad)
+                    let adInfo = PKAdInfo(ad: event.ad,
+                                          podCount: nil,
+                                          adPlayHead: adsManager?.adPlaybackInfo.currentMediaTime)
                     self.pkAdInfo = adInfo
                     adEvent = AdEvent.AdLoaded(adInfo: adInfo)
                 }
@@ -436,9 +438,13 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
             self.stateMachine.set(state: .adsPlaying)
             var adEvent = AdEvent.AdStarted()
             if event.ad != nil {
-                let adInfo = PKAdInfo(ad: event.ad)
+                let adInfo = PKAdInfo(ad: event.ad,
+                                      podCount: nil,
+                                      adPlayHead: adsManager?.adPlaybackInfo.currentMediaTime)
                 self.pkAdInfo = adInfo
-                adEvent = AdEvent.AdStarted(adInfo: PKAdInfo(ad: event.ad))
+                adEvent = AdEvent.AdStarted(adInfo: PKAdInfo(ad: event.ad,
+                                                             podCount: nil,
+                                                             adPlayHead: adsManager?.adPlaybackInfo.currentMediaTime))
             }
             self.notify(event: adEvent)
             
