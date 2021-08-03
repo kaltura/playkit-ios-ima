@@ -9,15 +9,16 @@ import PlayKit
     #if os(tvOS)
     @available(tvOS 14.0, *)
     private(set) lazy public var nowPlayingSession = MPNowPlayingSession(players: [
-        self.currentPlayerPlayer()
+        self.currentPlayer()
     ])
     #endif
     
-    func currentPlayerPlayer() -> AVPlayer {
+    func currentPlayer() -> AVPlayer {
         if let avPlayerWrapper = self.adsDAIPlayerEngineWrapper.playerEngine as? AVPlayerWrapper {
             return avPlayerWrapper.currentPlayer
         } else {
             // This workaround we need for not to use force unwpapping.
+            PKLog.error("AdsDAIPlayerEngineWrapper playerEngine should be always AVPlayerWrapper type.")
             return AVPlayer()
         }
     }
