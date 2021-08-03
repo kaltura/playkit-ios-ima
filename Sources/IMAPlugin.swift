@@ -52,7 +52,7 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
     }
 }
 
-@objc public class IMAPlugin: BasePlugin, PKPluginWarmUp, AdsPlugin, PlayerDecoratorProvider, PlayerEngineWrapperProvider, IMAAdsLoaderDelegate, IMAAdsManagerDelegate, IMAWebOpenerDelegate, IMAContentPlayhead {
+@objc public class IMAPlugin: BasePlugin, PKPluginWarmUp, AdsPlugin, PlayerDecoratorProvider, PlayerEngineWrapperProvider, IMAAdsLoaderDelegate, IMAAdsManagerDelegate, IMALinkOpenerDelegate, IMAContentPlayhead {
 
     // internal errors for requesting ads
     enum IMAPluginRequestError: Error {
@@ -543,10 +543,10 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
     }
     
     private func createRenderingSettings() {
-        self.renderingSettings.webOpenerDelegate = self
+        self.renderingSettings.linkOpenerDelegate = self
         
         if let webOpenerPresentingController = self.config?.webOpenerPresentingController {
-            self.renderingSettings.webOpenerPresentingController = webOpenerPresentingController
+            self.renderingSettings.linkOpenerPresentingController = webOpenerPresentingController
         }
         
         if let bitrate = self.config?.videoBitrate {

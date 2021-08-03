@@ -16,6 +16,8 @@ pod "PlayKit_IMA"
 For full documantation about **IMA Plugin** use:
 https://github.com/kaltura/DeveloperPortalDocs/blob/master/documentation/Mobile-Video-Player-SDKs/v3_iOS_Ads.md
 
+IMA SDK for iOS/tvOS [Support and compatibility information](https://developers.google.com/interactive-media-ads/docs/sdks/tvos/client-side/compatibility) 
+
 ## Author
 
 community@kaltura.com
@@ -23,8 +25,8 @@ community@kaltura.com
 
 ## Requirements
 
-* XCode8 or newer
-* iOS 9.0+
+* Xcode 11 or newer
+* iOS/tvOS 11.0+
 * CocoaPods
 
 ## Installation Instructions

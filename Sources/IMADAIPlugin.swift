@@ -3,7 +3,7 @@ import GoogleInteractiveMediaAds
 import PlayKit
 import PlayKitUtils
 
-@objc public class IMADAIPlugin: BasePlugin, AdsDAIPlugin, PKPluginWarmUp, PlayerEngineWrapperProvider, IMAAdsLoaderDelegate, IMAStreamManagerDelegate, IMAWebOpenerDelegate {
+@objc public class IMADAIPlugin: BasePlugin, AdsDAIPlugin, PKPluginWarmUp, PlayerEngineWrapperProvider, IMAAdsLoaderDelegate, IMAStreamManagerDelegate, IMALinkOpenerDelegate {
     
     // Internal errors for requesting ads
     enum IMADAIPluginRequestError: Error {
@@ -126,7 +126,7 @@ import PlayKitUtils
     }
     
     private func createRenderingSettings() {
-        renderingSettings.webOpenerDelegate = self
+        renderingSettings.linkOpenerDelegate = self
         
         if let mimeTypes = pluginConfig.videoMimeTypes {
             renderingSettings.mimeTypes = mimeTypes
@@ -149,7 +149,7 @@ import PlayKitUtils
         renderingSettings.disableUi = pluginConfig.disableUI
         
         if let webOpenerPresentingController = pluginConfig.webOpenerPresentingController {
-            renderingSettings.webOpenerPresentingController = webOpenerPresentingController
+            renderingSettings.linkOpenerPresentingController = webOpenerPresentingController
         }
     }
     
