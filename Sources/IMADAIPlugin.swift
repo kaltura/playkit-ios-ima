@@ -421,8 +421,6 @@ import PlayKitUtils
     public func streamManager(_ streamManager: IMAStreamManager!, didReceive event: IMAAdEvent!) {
         PKLog.trace("Stream manager event: " + event.typeString)
         
-        let adPlayHead = streamManager?.streamTime(forContentTime: self.currentTime)
-        
         switch event.type {
         case .CUEPOINTS_CHANGED:
             guard let adData = event.adData else { return }
@@ -445,11 +443,13 @@ import PlayKitUtils
                 }
             }
         case .LOADED:
+            let adPlayHead = streamManager?.streamTime(forContentTime: self.currentTime)
             let adEvent = event.ad != nil ? AdEvent.AdLoaded(adInfo: PKAdInfo(ad: event.ad,
                                                                               podCount: nil,
                                                                               adPlayHead: adPlayHead)) : AdEvent.AdLoaded()
             self.notify(event: adEvent)
         case .STARTED:
+            let adPlayHead = streamManager?.streamTime(forContentTime: self.currentTime)
             let event = event.ad != nil ? AdEvent.AdStarted(adInfo: PKAdInfo(ad: event.ad,
                                                                              podCount: nil,
                                                                              adPlayHead: adPlayHead)) : AdEvent.AdStarted()
@@ -461,9 +461,21 @@ import PlayKitUtils
         case .THIRD_QUARTILE:
             self.notify(event: AdEvent.AdThirdQuartile())
         case .PAUSE:
-            self.notify(event: AdEvent.AdPaused())
+            
+            let adPlayHead = streamManager?.streamTime(forContentTime: self.currentTime)
+            let adEvent = event.ad != nil ? AdEvent.AdPaused(adInfo: PKAdInfo(ad: event.ad,
+                                                                              podCount: nil,
+                                                                              adPlayHead: adPlayHead)) : AdEvent.AdPaused()
+            self.notify(event: adEvent)
+            
         case .RESUME:
-            self.notify(event: AdEvent.AdResumed())
+            
+            let adPlayHead = streamManager?.streamTime(forContentTime: self.currentTime)
+            let adEvent = event.ad != nil ? AdEvent.AdResumed(adInfo: PKAdInfo(ad: event.ad,
+                                                                              podCount: nil,
+                                                                              adPlayHead: adPlayHead)) : AdEvent.AdResumed()
+            self.notify(event: adEvent)
+            
         case .CLICKED:
             if let clickThroughUrl = event.ad.value(forKey: "clickThroughUrl") as? String {
                 self.notify(event: AdEvent.AdClicked(clickThroughUrl: clickThroughUrl))

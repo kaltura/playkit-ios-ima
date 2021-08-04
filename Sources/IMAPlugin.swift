@@ -442,9 +442,7 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
                                       podCount: nil,
                                       adPlayHead: adsManager?.adPlaybackInfo.currentMediaTime)
                 self.pkAdInfo = adInfo
-                adEvent = AdEvent.AdStarted(adInfo: PKAdInfo(ad: event.ad,
-                                                             podCount: nil,
-                                                             adPlayHead: adsManager?.adPlaybackInfo.currentMediaTime))
+                adEvent = AdEvent.AdStarted(adInfo: adInfo)
             }
             self.notify(event: adEvent)
             
@@ -478,13 +476,42 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
             self.notify(event: AdEvent.AdMidpoint())
             
         case .PAUSE:
-            self.notify(event: AdEvent.AdPaused())
+            var adEvent = AdEvent.AdPaused()
+            if event.ad != nil {
+                let adInfo = PKAdInfo(ad: event.ad,
+                                      podCount: nil,
+                                      adPlayHead: adsManager?.adPlaybackInfo.currentMediaTime)
+                self.pkAdInfo = adInfo
+                adEvent = AdEvent.AdPaused(adInfo: adInfo)
+            }
+            
+            self.notify(event: adEvent)
             
         case .RESUME:
-            self.notify(event: AdEvent.AdResumed())
+            
+            var adEvent = AdEvent.AdResumed()
+            if event.ad != nil {
+                let adInfo = PKAdInfo(ad: event.ad,
+                                      podCount: nil,
+                                      adPlayHead: adsManager?.adPlaybackInfo.currentMediaTime)
+                self.pkAdInfo = adInfo
+                adEvent = AdEvent.AdResumed(adInfo: adInfo)
+            }
+            
+            self.notify(event: adEvent)
             
         case .SKIPPED:
-            self.notify(event: AdEvent.AdSkipped())
+            
+            var adEvent = AdEvent.AdSkipped()
+            if event.ad != nil {
+                let adInfo = PKAdInfo(ad: event.ad,
+                                      podCount: nil,
+                                      adPlayHead: adsManager?.adPlaybackInfo.currentMediaTime)
+                self.pkAdInfo = adInfo
+                adEvent = AdEvent.AdSkipped(adInfo: adInfo)
+            }
+            
+            self.notify(event: adEvent)
             
         case .TAPPED:
             self.notify(event: AdEvent.AdTapped())
