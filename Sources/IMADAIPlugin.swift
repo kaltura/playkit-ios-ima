@@ -443,13 +443,13 @@ import PlayKitUtils
                 }
             }
         case .LOADED:
-            let adPlayHead = streamManager?.streamTime(forContentTime: self.currentTime)
+            let adPlayHead: TimeInterval = .nan
             let adEvent = event.ad != nil ? AdEvent.AdLoaded(adInfo: PKAdInfo(ad: event.ad,
                                                                               podCount: nil,
                                                                               adPlayHead: adPlayHead)) : AdEvent.AdLoaded()
             self.notify(event: adEvent)
         case .STARTED:
-            let adPlayHead = streamManager?.streamTime(forContentTime: self.currentTime)
+            let adPlayHead: TimeInterval = .nan
             let event = event.ad != nil ? AdEvent.AdStarted(adInfo: PKAdInfo(ad: event.ad,
                                                                              podCount: nil,
                                                                              adPlayHead: adPlayHead)) : AdEvent.AdStarted()
@@ -461,16 +461,14 @@ import PlayKitUtils
         case .THIRD_QUARTILE:
             self.notify(event: AdEvent.AdThirdQuartile())
         case .PAUSE:
-            
-            let adPlayHead = streamManager?.streamTime(forContentTime: self.currentTime)
+            let adPlayHead: TimeInterval = .nan
             let adEvent = event.ad != nil ? AdEvent.AdPaused(adInfo: PKAdInfo(ad: event.ad,
                                                                               podCount: nil,
                                                                               adPlayHead: adPlayHead)) : AdEvent.AdPaused()
             self.notify(event: adEvent)
             
         case .RESUME:
-            
-            let adPlayHead = streamManager?.streamTime(forContentTime: self.currentTime)
+            let adPlayHead: TimeInterval = .nan
             let adEvent = event.ad != nil ? AdEvent.AdResumed(adInfo: PKAdInfo(ad: event.ad,
                                                                               podCount: nil,
                                                                               adPlayHead: adPlayHead)) : AdEvent.AdResumed()

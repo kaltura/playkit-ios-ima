@@ -423,7 +423,7 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
                 if event.ad != nil {
                     let adInfo = PKAdInfo(ad: event.ad,
                                           podCount: nil,
-                                          adPlayHead: adsManager?.adPlaybackInfo.currentMediaTime)
+                                          adPlayHead: .nan)
                     self.pkAdInfo = adInfo
                     adEvent = AdEvent.AdLoaded(adInfo: adInfo)
                 }
@@ -440,7 +440,7 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
             if event.ad != nil {
                 let adInfo = PKAdInfo(ad: event.ad,
                                       podCount: nil,
-                                      adPlayHead: adsManager?.adPlaybackInfo.currentMediaTime)
+                                      adPlayHead: .nan)
                 self.pkAdInfo = adInfo
                 adEvent = AdEvent.AdStarted(adInfo: adInfo)
             }
@@ -480,7 +480,7 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
             if event.ad != nil {
                 let adInfo = PKAdInfo(ad: event.ad,
                                       podCount: nil,
-                                      adPlayHead: adsManager?.adPlaybackInfo.currentMediaTime)
+                                      adPlayHead: .nan)
                 self.pkAdInfo = adInfo
                 adEvent = AdEvent.AdPaused(adInfo: adInfo)
             }
@@ -493,7 +493,7 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
             if event.ad != nil {
                 let adInfo = PKAdInfo(ad: event.ad,
                                       podCount: nil,
-                                      adPlayHead: adsManager?.adPlaybackInfo.currentMediaTime)
+                                      adPlayHead: .nan)
                 self.pkAdInfo = adInfo
                 adEvent = AdEvent.AdResumed(adInfo: adInfo)
             }
@@ -506,7 +506,7 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
             if event.ad != nil {
                 let adInfo = PKAdInfo(ad: event.ad,
                                       podCount: nil,
-                                      adPlayHead: adsManager?.adPlaybackInfo.currentMediaTime)
+                                      adPlayHead: .nan)
                 self.pkAdInfo = adInfo
                 adEvent = AdEvent.AdSkipped(adInfo: adInfo)
             }
@@ -641,7 +641,7 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
     private func shouldDiscard(ad: IMAAd, currentState: IMAState) -> Bool {
         let adInfo = PKAdInfo(ad: ad,
                               podCount: nil,
-                              adPlayHead: adsManager?.adPlaybackInfo.currentMediaTime)
+                              adPlayHead: .nan)
         let isPreRollInvalid = adInfo.positionType == .preRoll && (currentState == .adsRequestTimedOut || currentState == .contentPlaying)
         if isPreRollInvalid {
             return true
