@@ -51,7 +51,7 @@ extension PKAdInfo {
             surveyUrl: ad.surveyURL,
             traffickingParams: ad.traffickingParameters,
             adIndexInPod: ad.adPodInfo.adPosition,
-            podCount: podCount ?? 1,
+            podCount: podCount ?? 0,
             adPodTimeOffset: ad.adPodInfo.timeOffset
         )
     }
