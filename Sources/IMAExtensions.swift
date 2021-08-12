@@ -20,7 +20,12 @@ extension IMAAdsManager {
 }
 
 extension PKAdInfo {
+    
     convenience init(ad: IMAAd) {
+        self.init(ad: ad, podCount: nil, adPlayHead: nil)
+    }
+    
+    convenience init(ad: IMAAd, podCount: Int?, adPlayHead: TimeInterval?) {
         self.init(
             adDescription: ad.adDescription,
             adDuration: ad.duration,
@@ -38,6 +43,17 @@ extension PKAdInfo {
             podIndex: Int(ad.adPodInfo.podIndex),
             mediaBitrate: ad.vastMediaBitrate,
             creativeId: ad.creativeID,
-            advertiserName: ad.advertiserName)
+            advertiserName: ad.advertiserName,
+            adPlayHead: adPlayHead ?? 0,
+            skipTimeOffset: ad.skipTimeOffset,
+            creativeAdId: ad.creativeAdID,
+            dealId: ad.dealID,
+            surveyUrl: ad.surveyURL,
+            traffickingParams: ad.traffickingParameters,
+            adIndexInPod: ad.adPodInfo.adPosition,
+            podCount: podCount ?? 0,
+            adPodTimeOffset: ad.adPodInfo.timeOffset
+        )
     }
+    
 }

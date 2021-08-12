@@ -421,7 +421,9 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
             } else {
                 var adEvent = AdEvent.AdLoaded()
                 if event.ad != nil {
-                    let adInfo = PKAdInfo(ad: event.ad)
+                    let adInfo = PKAdInfo(ad: event.ad,
+                                          podCount: adsManager?.adCuePoints.count,
+                                          adPlayHead: .nan)
                     self.pkAdInfo = adInfo
                     adEvent = AdEvent.AdLoaded(adInfo: adInfo)
                 }
@@ -436,9 +438,11 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
             self.stateMachine.set(state: .adsPlaying)
             var adEvent = AdEvent.AdStarted()
             if event.ad != nil {
-                let adInfo = PKAdInfo(ad: event.ad)
+                let adInfo = PKAdInfo(ad: event.ad,
+                                      podCount: adsManager?.adCuePoints.count,
+                                      adPlayHead: .nan)
                 self.pkAdInfo = adInfo
-                adEvent = AdEvent.AdStarted(adInfo: PKAdInfo(ad: event.ad))
+                adEvent = AdEvent.AdStarted(adInfo: adInfo)
             }
             self.notify(event: adEvent)
             
@@ -472,13 +476,42 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
             self.notify(event: AdEvent.AdMidpoint())
             
         case .PAUSE:
-            self.notify(event: AdEvent.AdPaused())
+            var adEvent = AdEvent.AdPaused()
+            if event.ad != nil {
+                let adInfo = PKAdInfo(ad: event.ad,
+                                      podCount: adsManager?.adCuePoints.count,
+                                      adPlayHead: .nan)
+                self.pkAdInfo = adInfo
+                adEvent = AdEvent.AdPaused(adInfo: adInfo)
+            }
+            
+            self.notify(event: adEvent)
             
         case .RESUME:
-            self.notify(event: AdEvent.AdResumed())
+            
+            var adEvent = AdEvent.AdResumed()
+            if event.ad != nil {
+                let adInfo = PKAdInfo(ad: event.ad,
+                                      podCount: adsManager?.adCuePoints.count,
+                                      adPlayHead: .nan)
+                self.pkAdInfo = adInfo
+                adEvent = AdEvent.AdResumed(adInfo: adInfo)
+            }
+            
+            self.notify(event: adEvent)
             
         case .SKIPPED:
-            self.notify(event: AdEvent.AdSkipped())
+            
+            var adEvent = AdEvent.AdSkipped()
+            if event.ad != nil {
+                let adInfo = PKAdInfo(ad: event.ad,
+                                      podCount: adsManager?.adCuePoints.count,
+                                      adPlayHead: .nan)
+                self.pkAdInfo = adInfo
+                adEvent = AdEvent.AdSkipped(adInfo: adInfo)
+            }
+            
+            self.notify(event: adEvent)
             
         case .TAPPED:
             self.notify(event: AdEvent.AdTapped())
@@ -606,7 +639,9 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
     }
     
     private func shouldDiscard(ad: IMAAd, currentState: IMAState) -> Bool {
-        let adInfo = PKAdInfo(ad: ad)
+        let adInfo = PKAdInfo(ad: ad,
+                              podCount: adsManager?.adCuePoints.count,
+                              adPlayHead: .nan)
         let isPreRollInvalid = adInfo.positionType == .preRoll && (currentState == .adsRequestTimedOut || currentState == .contentPlaying)
         if isPreRollInvalid {
             return true

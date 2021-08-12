@@ -443,10 +443,14 @@ import PlayKitUtils
                 }
             }
         case .LOADED:
-            let adEvent = event.ad != nil ? AdEvent.AdLoaded(adInfo: PKAdInfo(ad: event.ad)) : AdEvent.AdLoaded()
+            let adEvent = event.ad != nil ? AdEvent.AdLoaded(adInfo: PKAdInfo(ad: event.ad,
+                                                                              podCount: nil,
+                                                                              adPlayHead: .nan)) : AdEvent.AdLoaded()
             self.notify(event: adEvent)
         case .STARTED:
-            let event = event.ad != nil ? AdEvent.AdStarted(adInfo: PKAdInfo(ad: event.ad)) : AdEvent.AdStarted()
+            let event = event.ad != nil ? AdEvent.AdStarted(adInfo: PKAdInfo(ad: event.ad,
+                                                                             podCount: nil,
+                                                                             adPlayHead: .nan)) : AdEvent.AdStarted()
             self.notify(event: event)
         case .FIRST_QUARTILE:
             self.notify(event: AdEvent.AdFirstQuartile())
@@ -455,9 +459,17 @@ import PlayKitUtils
         case .THIRD_QUARTILE:
             self.notify(event: AdEvent.AdThirdQuartile())
         case .PAUSE:
-            self.notify(event: AdEvent.AdPaused())
+            let adEvent = event.ad != nil ? AdEvent.AdPaused(adInfo: PKAdInfo(ad: event.ad,
+                                                                              podCount: nil,
+                                                                              adPlayHead: .nan)) : AdEvent.AdPaused()
+            self.notify(event: adEvent)
+            
         case .RESUME:
-            self.notify(event: AdEvent.AdResumed())
+            let adEvent = event.ad != nil ? AdEvent.AdResumed(adInfo: PKAdInfo(ad: event.ad,
+                                                                              podCount: nil,
+                                                                              adPlayHead: .nan)) : AdEvent.AdResumed()
+            self.notify(event: adEvent)
+            
         case .CLICKED:
             if let clickThroughUrl = event.ad.value(forKey: "clickThroughUrl") as? String {
                 self.notify(event: AdEvent.AdClicked(clickThroughUrl: clickThroughUrl))
