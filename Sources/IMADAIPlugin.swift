@@ -443,16 +443,14 @@ import PlayKitUtils
                 }
             }
         case .LOADED:
-            let adPlayHead: TimeInterval = .nan
             let adEvent = event.ad != nil ? AdEvent.AdLoaded(adInfo: PKAdInfo(ad: event.ad,
                                                                               podCount: nil,
-                                                                              adPlayHead: adPlayHead)) : AdEvent.AdLoaded()
+                                                                              adPlayHead: .nan)) : AdEvent.AdLoaded()
             self.notify(event: adEvent)
         case .STARTED:
-            let adPlayHead: TimeInterval = .nan
             let event = event.ad != nil ? AdEvent.AdStarted(adInfo: PKAdInfo(ad: event.ad,
                                                                              podCount: nil,
-                                                                             adPlayHead: adPlayHead)) : AdEvent.AdStarted()
+                                                                             adPlayHead: .nan)) : AdEvent.AdStarted()
             self.notify(event: event)
         case .FIRST_QUARTILE:
             self.notify(event: AdEvent.AdFirstQuartile())
@@ -461,17 +459,15 @@ import PlayKitUtils
         case .THIRD_QUARTILE:
             self.notify(event: AdEvent.AdThirdQuartile())
         case .PAUSE:
-            let adPlayHead: TimeInterval = .nan
             let adEvent = event.ad != nil ? AdEvent.AdPaused(adInfo: PKAdInfo(ad: event.ad,
                                                                               podCount: nil,
-                                                                              adPlayHead: adPlayHead)) : AdEvent.AdPaused()
+                                                                              adPlayHead: .nan)) : AdEvent.AdPaused()
             self.notify(event: adEvent)
             
         case .RESUME:
-            let adPlayHead: TimeInterval = .nan
             let adEvent = event.ad != nil ? AdEvent.AdResumed(adInfo: PKAdInfo(ad: event.ad,
                                                                               podCount: nil,
-                                                                              adPlayHead: adPlayHead)) : AdEvent.AdResumed()
+                                                                              adPlayHead: .nan)) : AdEvent.AdResumed()
             self.notify(event: adEvent)
             
         case .CLICKED:
