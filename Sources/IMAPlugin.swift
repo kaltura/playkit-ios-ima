@@ -254,7 +254,10 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
         }
         
         // sets the state
-        self.stateMachine.set(state: .adsRequested)
+        if self.loaderRetries == IMAPlugin.loaderRetryCount {
+            self.stateMachine.set(state: .adsRequested)
+        }
+        
         // make sure loader exists otherwise create.
         if IMAPlugin.loader == nil {
             self.createLoader()
@@ -370,23 +373,21 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
     @objc public func adsLoader(_ loader: IMAAdsLoader!, failedWith adErrorData: IMAAdLoadingErrorData!) {
         // cancel the request timer
         self.invalidateRequestTimer()
-        self.stateMachine.set(state: .adsRequestFailed)
-        
-        guard let adError = adErrorData.adError else {
-            PKLog.error("AdsLoader faild with error.")
-            return
-        }
-        let adErrorMessage: String = adError.message == nil ? "" : adError.message
-        PKLog.error(adErrorMessage)
-        self.messageBus?.post(AdEvent.Error(nsError: IMAPluginError(adError: adError).asNSError))
-        self.delegate?.adsPlugin(self, loaderFailedWith: adErrorMessage)
         
         // if the error relates to IMA SDK failed to load recreate loader instance.
         // otherwise loader will never work again
         IMAPlugin.loader = nil
-        if (adError.code.rawValue == 1005 || adError.code.rawValue == 1010) && self.loaderRetries > 0 {
+        if (adErrorData.adError.code.rawValue == 1005 || adErrorData.adError.code.rawValue == 1010) && self.loaderRetries > 0 {
             self.loaderRetries -= 1
+            PKLog.info("Retrying to load Ad. Attempts left: \(self.loaderRetries)")
             try? self.requestAds()
+        } else {
+            self.stateMachine.set(state: .adsRequestFailed)
+            
+            let adErrorMessage: String = adErrorData.adError.message == nil ? "" : adErrorData.adError.message
+            PKLog.error(adErrorMessage)
+            self.messageBus?.post(AdEvent.Error(nsError: IMAPluginError(adError: adErrorData.adError).asNSError))
+            self.delegate?.adsPlugin(self, loaderFailedWith: adErrorMessage)
         }
     }
     
