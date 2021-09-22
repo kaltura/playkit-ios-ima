@@ -4,7 +4,7 @@ suffix = '.0000'   # Dev mode
 
 Pod::Spec.new do |s|
   s.name             = 'PlayKit_IMA'
-  s.version          = '1.10.0' + suffix
+  s.version          = '1.11.0' + suffix
   s.author           = { 'Kaltura' => 'community@kaltura.com' }
   s.license          = { :type => 'AGPLv3', :text => 'AGPLv3' }
   s.summary          = 'PlayKit IMA Plugin'
@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '11.0'
   s.tvos.deployment_target = '11.0'
 
-  s.dependency 'PlayKit', '~> 3.18'
+  s.dependency 'PlayKit', '~> 3.22'
 
   s.ios.source_files = 'Sources/*.swift', 'Sources/iOS/*.swift'
   s.tvos.source_files = 'Sources/*.swift', 'Sources/tvOS/*.swift'
