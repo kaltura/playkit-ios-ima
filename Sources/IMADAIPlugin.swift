@@ -508,7 +508,8 @@ import PlayKitUtils
                               adDuration: TimeInterval,
                               adPosition: Int,
                               totalAds: Int,
-                              adBreakDuration: TimeInterval) {
+                              adBreakDuration: TimeInterval,
+                              adPeriodDuration: TimeInterval) {
         self.notify(event: AdEvent.AdDidProgressToTime(mediaTime: time, totalTime: adDuration))
     }
 }
