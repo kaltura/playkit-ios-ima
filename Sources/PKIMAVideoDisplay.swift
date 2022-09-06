@@ -8,9 +8,9 @@ import PlayKit
     
     #if os(tvOS)
     @available(tvOS 14.0, *)
-    private(set) lazy public var nowPlayingSession = MPNowPlayingSession(players: [
-        self.currentPlayer()
-    ])
+    public var nowPlayingSession: MPNowPlayingSession {
+        return MPNowPlayingSession(players: [ self.currentPlayer() ])
+    }
     #endif
     
     func currentPlayer() -> AVPlayer {
