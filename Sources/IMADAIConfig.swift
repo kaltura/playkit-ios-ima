@@ -19,9 +19,21 @@ import GoogleInteractiveMediaAds
     // Media Data
     public var streamType: PKIMADAIStreamType = .vod
     @objc public var assetTitle: String?
-    @objc public var assetKey: String? // Needed for Live
+    @objc public var assetKey: String? { // Needed for Live
+        didSet {
+            if let assetKey = assetKey, !assetKey.isEmpty {
+                streamType = .live
+            }
+        }
+    }
     @objc public var apiKey: String?
-    @objc public var contentSourceId: String? // Needed for VOD
+    @objc public var contentSourceId: String? { // Needed for VOD
+        didSet {
+            if let contentSourceId = contentSourceId, !contentSourceId.isEmpty {
+                streamType = .vod
+            }
+        }
+    }
     @objc public var videoId: String? // Needed for VOD
     @objc public var licenseUrl: String?
     
