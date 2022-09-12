@@ -18,23 +18,23 @@ import GoogleInteractiveMediaAds
     
     // Media Data
     public var streamType: PKIMADAIStreamType = .vod
-    public var assetTitle: String?
-    public var assetKey: String? // Needed for Live
-    public var apiKey: String?
-    public var contentSourceId: String? // Needed for VOD
-    public var videoId: String? // Needed for VOD
-    public var licenseUrl: String?
+    @objc public var assetTitle: String?
+    @objc public var assetKey: String? // Needed for Live
+    @objc public var apiKey: String?
+    @objc public var contentSourceId: String? // Needed for VOD
+    @objc public var videoId: String? // Needed for VOD
+    @objc public var licenseUrl: String?
     
     // IMASettings
-    public var ppid: String?
-    public var language: String = "en"
-    public var maxRedirects: UInt = 4
-    public var enableBackgroundPlayback: Bool = false
-    public var autoPlayAdBreaks: Bool = true
-    public var disableNowPlayingInfo: Bool = false
-    public var playerType: String = "kaltura-vp-ios"
-    public var playerVersion: String?
-    public var enableDebugMode: Bool = false
+    @objc public var ppid: String?
+    @objc public var language: String = "en"
+    @objc public var maxRedirects: UInt = 4
+    @objc public var enableBackgroundPlayback: Bool = false
+    @objc public var autoPlayAdBreaks: Bool = true
+    @objc public var disableNowPlayingInfo: Bool = false
+    @objc public var playerType: String = "kaltura-vp-ios"
+    @objc public var playerVersion: String?
+    @objc public var enableDebugMode: Bool = false
     
     // IMAAdsRenderingSettings
     public var videoMimeTypes: [String]?
@@ -51,12 +51,12 @@ import GoogleInteractiveMediaAds
     
     /// This boolean indicates whether or not to play the pre-roll when the start position is bigger then 0.
     /// Default value is false.
-    public var alwaysStartWithPreroll: Bool = false
+    @objc public var alwaysStartWithPreroll: Bool = false
     
-    public var adAttribution: Bool = true
-    public var adCountDown: Bool = true
-    public var disablePersonalizedAds: Bool = true // adTagParameters.put("npa", 1);
-    public var enableAgeRestriction: Bool = false // adTagParameters.put("tfua", 1);
+    @objc public var adAttribution: Bool = true
+    @objc public var adCountDown: Bool = true
+    @objc public var disablePersonalizedAds: Bool = true // adTagParameters.put("npa", 1);
+    @objc public var enableAgeRestriction: Bool = false // adTagParameters.put("tfua", 1);
     
     public func inDebugMode() -> Bool {
         return enableDebugMode
