@@ -36,6 +36,9 @@ import GoogleInteractiveMediaAds
     }
     @objc public var videoId: String? // Needed for VOD
     @objc public var licenseUrl: String?
+    @objc public var adTagParams: [String: String]?
+    @objc public var streamActivityMonitorId: String?
+    @objc public var authToken: String?
     
     // IMASettings
     @objc public var ppid: String?

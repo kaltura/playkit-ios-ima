@@ -228,6 +228,18 @@ import PlayKitUtils
         
         request.apiKey = pluginConfig.apiKey
         
+        if let adTagParameters = pluginConfig.adTagParams {
+            request.adTagParameters.merge(adTagParameters) { _, new in new }
+        }
+        
+        if let monitorID = pluginConfig.streamActivityMonitorId {
+            request.streamActivityMonitorID = monitorID
+        }
+        
+        if let authToken = pluginConfig.authToken {
+            request.authToken = authToken
+        }
+        
         if IMADAIPlugin.adsLoader == nil || stateMachine.getState() == .adsRequestFailed || stateMachine.getState() == .adsRequestTimedOut {
             createAdsLoader()
         }
