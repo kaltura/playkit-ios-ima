@@ -25,8 +25,8 @@ Pod::Spec.new do |s|
 
   s.xcconfig = {
 ### The following is required for Xcode 12 (https://stackoverflow.com/questions/63607158/xcode-12-building-for-ios-simulator-but-linking-in-object-file-built-for-ios)
-    'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64',
-    'EXCLUDED_ARCHS[sdk=appletvsimulator*]' => 'arm64'
+    'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64'
+#    'EXCLUDED_ARCHS[sdk=appletvsimulator*]' => 'arm64'
   }
 
 end
