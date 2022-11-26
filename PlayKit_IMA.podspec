@@ -20,8 +20,8 @@ Pod::Spec.new do |s|
   s.ios.source_files = 'Sources/*.swift', 'Sources/iOS/*.swift'
   s.tvos.source_files = 'Sources/*.swift', 'Sources/tvOS/*.swift'
 
-  s.ios.dependency 'GoogleAds-IMA-iOS-SDK', '3.14.4'
-  s.tvos.dependency 'GoogleAds-IMA-tvOS-SDK', '4.4.2'
+  s.ios.dependency 'GoogleAds-IMA-iOS-SDK', '3.18.1'
+  s.tvos.dependency 'GoogleAds-IMA-tvOS-SDK', '4.6.1'
 
   s.xcconfig = {
 ### The following is required for Xcode 12 (https://stackoverflow.com/questions/63607158/xcode-12-building-for-ios-simulator-but-linking-in-object-file-built-for-ios)
