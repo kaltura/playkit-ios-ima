@@ -393,9 +393,11 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
         } else {
             self.stateMachine.set(state: .adsRequestFailed)
             
-            PKLog.error(adErrorData.adError.message)
+            let adErrorMessage: String = adErrorData.adError.message ?? ""
+            
+            PKLog.error(adErrorMessage)
             self.messageBus?.post(AdEvent.Error(nsError: IMAPluginError(adError: adErrorData.adError).asNSError))
-            self.delegate?.adsPlugin(self, loaderFailedWith: adErrorData.adError.message ?? "")
+            self.delegate?.adsPlugin(self, loaderFailedWith: adErrorMessage)
         }
     }
     

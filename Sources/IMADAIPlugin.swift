@@ -419,9 +419,11 @@ import PlayKitUtils
         invalidateRequestTimer()
         stateMachine.set(state: .adsRequestFailed)
         
-        PKLog.error(adErrorData.adError.message)
+        let adErrorMessage: String = adErrorData.adError.message ?? ""
+        
+        PKLog.error(adErrorMessage)
         messageBus?.post(AdEvent.Error(nsError: IMAPluginError(adError: adErrorData.adError).asNSError))
-        delegate?.adsPlugin(self, loaderFailedWith: adErrorData.adError.message ?? "")
+        delegate?.adsPlugin(self, loaderFailedWith: adErrorMessage)
     }
     
     /************************************************************/
