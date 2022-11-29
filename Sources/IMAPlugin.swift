@@ -228,29 +228,38 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
             throw IMAPluginRequestError.emptyAdTag
         }
         
-        adDisplayContainer = IMAPlugin.createAdDisplayContainer(forView: playerView, viewController: playerView.findViewController(), withCompanionView: self.config.companionView)
+        let displayContainer = IMAPlugin.createAdDisplayContainer(forView: playerView,
+                                                                  viewController: playerView.findViewController(),
+                                                                  withCompanionView: self.config.companionView)
+        
+        adDisplayContainer = displayContainer
         
         self.adDisplayContainer?.unregisterAllFriendlyObstructions()
+        
         if let videoControlsOverlays = self.config?.videoControlsOverlays {
             for overlay in videoControlsOverlays {
                 adDisplayContainer?.register(IMAFriendlyObstruction(view: overlay, purpose: .mediaControls, detailedReason: nil))
             }
         }
         
-        let request: IMAAdsRequest?
+        let request: IMAAdsRequest
         if !self.config.adTagUrl.isEmpty {
-            request = IMAAdsRequest(adTagUrl: self.config.adTagUrl, adDisplayContainer: adDisplayContainer, contentPlayhead: self, userContext: nil)
+            request = IMAAdsRequest(adTagUrl: self.config.adTagUrl,
+                                    adDisplayContainer: displayContainer,
+                                    contentPlayhead: self, userContext: nil)
         } else {
-            request = IMAAdsRequest(adsResponse: self.config.adsResponse, adDisplayContainer: adDisplayContainer, contentPlayhead: self, userContext: nil)
+            request = IMAAdsRequest(adsResponse: self.config.adsResponse,
+                                    adDisplayContainer: displayContainer,
+                                    contentPlayhead: self, userContext: nil)
         }
         
         if let vastLoadTimeout = self.config.vastLoadTimeout {
-            request?.vastLoadTimeout = vastLoadTimeout.floatValue
+            request.vastLoadTimeout = vastLoadTimeout.floatValue
         }
         
         // If the device volume is muted, this is not indicated by the mute switch.
         if AVAudioSession.sharedInstance().outputVolume == 0 {
-            request?.adWillPlayMuted = true
+            request.adWillPlayMuted = true
         }
         
         // sets the state
@@ -349,7 +358,7 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
     // MARK: - AdsLoaderDelegate
     /************************************************************/
     
-    @objc public func adsLoader(_ loader: IMAAdsLoader!, adsLoadedWith adsLoadedData: IMAAdsLoadedData!) {
+    @objc public func adsLoader(_ loader: IMAAdsLoader, adsLoadedWith adsLoadedData: IMAAdsLoadedData) {
         self.loaderRetries = IMAPlugin.loaderRetryCount
         
         switch self.stateMachine.getState() {
@@ -359,7 +368,7 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
         }
         
         self.adsManager = adsLoadedData.adsManager
-        adsLoadedData.adsManager.delegate = self
+        adsLoadedData.adsManager?.delegate = self
         self.createRenderingSettings()
         
         // initialize on ads manager starts the ads loading process, we want to initialize it only after play.
@@ -370,7 +379,7 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
         }
     }
     
-    @objc public func adsLoader(_ loader: IMAAdsLoader!, failedWith adErrorData: IMAAdLoadingErrorData!) {
+    @objc public func adsLoader(_ loader: IMAAdsLoader, failedWith adErrorData: IMAAdLoadingErrorData) {
         // cancel the request timer
         self.invalidateRequestTimer()
         
@@ -384,7 +393,8 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
         } else {
             self.stateMachine.set(state: .adsRequestFailed)
             
-            let adErrorMessage: String = adErrorData.adError.message == nil ? "" : adErrorData.adError.message
+            let adErrorMessage: String = adErrorData.adError.message ?? ""
+            
             PKLog.error(adErrorMessage)
             self.messageBus?.post(AdEvent.Error(nsError: IMAPluginError(adError: adErrorData.adError).asNSError))
             self.delegate?.adsPlugin(self, loaderFailedWith: adErrorMessage)
@@ -395,15 +405,15 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
     // MARK: - AdsManagerDelegate
     /************************************************************/
     
-    @objc public func adsManagerAdDidStartBuffering(_ adsManager: IMAAdsManager!) {
+    @objc public func adsManagerAdDidStartBuffering(_ adsManager: IMAAdsManager) {
         self.notify(event: AdEvent.AdStartedBuffering())
     }
     
-    @objc public func adsManagerAdPlaybackReady(_ adsManager: IMAAdsManager!) {
+    @objc public func adsManagerAdPlaybackReady(_ adsManager: IMAAdsManager) {
         self.notify(event: AdEvent.AdPlaybackReady())
     }
     
-    @objc public func adsManager(_ adsManager: IMAAdsManager!, didReceive event: IMAAdEvent!) {
+    @objc public func adsManager(_ adsManager: IMAAdsManager, didReceive event: IMAAdEvent) {
         PKLog.trace("ads manager event: " + String(describing: event))
         let currentState = self.stateMachine.getState()
         
@@ -421,14 +431,17 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
                 self.discardAdBreak(adsManager: adsManager)
             } else {
                 var adEvent = AdEvent.AdLoaded()
-                if event.ad != nil {
-                    let adInfo = PKAdInfo(ad: event.ad,
-                                          podCount: adsManager?.adCuePoints.count,
+                
+                if let ad = event.ad {
+                    let adInfo = PKAdInfo(ad: ad,
+                                          podCount: adsManager.adCuePoints.count,
                                           adPlayHead: .nan)
                     self.pkAdInfo = adInfo
                     adEvent = AdEvent.AdLoaded(adInfo: adInfo)
                 }
+                
                 self.notify(event: adEvent)
+                
                 // if we have more than one ad don't start the manager, it will be handled in `AD_BREAK_READY`
                 guard adsManager.adCuePoints.count == 0 else { return }
                 guard canPlayAd(forState: currentState) else { return }
@@ -438,15 +451,16 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
         case .STARTED:
             self.stateMachine.set(state: .adsPlaying)
             var adEvent = AdEvent.AdStarted()
-            if event.ad != nil {
-                let adInfo = PKAdInfo(ad: event.ad,
-                                      podCount: adsManager?.adCuePoints.count,
+            
+            if let ad = event.ad {
+                let adInfo = PKAdInfo(ad: ad,
+                                      podCount: adsManager.adCuePoints.count,
                                       adPlayHead: .nan)
                 self.pkAdInfo = adInfo
                 adEvent = AdEvent.AdStarted(adInfo: adInfo)
             }
-            self.notify(event: adEvent)
             
+            self.notify(event: adEvent)
         case .ALL_ADS_COMPLETED:
             // detaching the delegate and destroying the adsManager.
             // means all ads have been played so we can destroy the adsManager.
@@ -454,12 +468,14 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
             self.notify(event: AdEvent.AllAdsCompleted())
             
         case .CLICKED:
-            if let clickThroughUrl = event.ad.value(forKey: "clickThroughUrl") as? String {
-                self.notify(event: AdEvent.AdClicked(clickThroughUrl: clickThroughUrl))
-            } else {
-                self.notify(event: AdEvent.AdClicked())
+            var adEvent = AdEvent.AdClicked()
+            
+            if let ad = event.ad,
+               let clickThroughUrl = ad.value(forKey: "clickThroughUrl") as? String {
+                adEvent = AdEvent.AdClicked(clickThroughUrl: clickThroughUrl)
             }
             
+            self.notify(event: adEvent)
         case .COMPLETE:
             self.notify(event: AdEvent.AdComplete())
             if pkAdInfo?.adPosition == pkAdInfo?.totalAds, contentEndedNeedToPlayPostroll {
@@ -478,42 +494,40 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
             
         case .PAUSE:
             var adEvent = AdEvent.AdPaused()
-            if event.ad != nil {
-                let adInfo = PKAdInfo(ad: event.ad,
-                                      podCount: adsManager?.adCuePoints.count,
+            
+            if let ad = event.ad {
+                let adInfo = PKAdInfo(ad: ad,
+                                      podCount: adsManager.adCuePoints.count,
                                       adPlayHead: .nan)
                 self.pkAdInfo = adInfo
                 adEvent = AdEvent.AdPaused(adInfo: adInfo)
             }
             
             self.notify(event: adEvent)
-            
         case .RESUME:
-            
             var adEvent = AdEvent.AdResumed()
-            if event.ad != nil {
-                let adInfo = PKAdInfo(ad: event.ad,
-                                      podCount: adsManager?.adCuePoints.count,
+            
+            if let ad = event.ad {
+                let adInfo = PKAdInfo(ad: ad,
+                                      podCount: adsManager.adCuePoints.count,
                                       adPlayHead: .nan)
                 self.pkAdInfo = adInfo
                 adEvent = AdEvent.AdResumed(adInfo: adInfo)
             }
             
             self.notify(event: adEvent)
-            
         case .SKIPPED:
-            
             var adEvent = AdEvent.AdSkipped()
-            if event.ad != nil {
-                let adInfo = PKAdInfo(ad: event.ad,
-                                      podCount: adsManager?.adCuePoints.count,
+            
+            if let ad = event.ad {
+                let adInfo = PKAdInfo(ad: ad,
+                                      podCount: adsManager.adCuePoints.count,
                                       adPlayHead: .nan)
                 self.pkAdInfo = adInfo
                 adEvent = AdEvent.AdSkipped(adInfo: adInfo)
             }
             
             self.notify(event: adEvent)
-            
         case .TAPPED:
             self.notify(event: AdEvent.AdTapped())
             
@@ -533,23 +547,23 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
         }
     }
     
-    @objc public func adsManager(_ adsManager: IMAAdsManager!, didReceive error: IMAAdError!) {
+    @objc public func adsManager(_ adsManager: IMAAdsManager, didReceive error: IMAAdError) {
         PKLog.error(error.message)
         self.messageBus?.post(AdEvent.Error(nsError: IMAPluginError(adError: error).asNSError))
-        self.delegate?.adsPlugin(self, managerFailedWith: error.message)
+        self.delegate?.adsPlugin(self, managerFailedWith: error.message ?? "")
     }
     
-    @objc public func adsManagerDidRequestContentPause(_ adsManager: IMAAdsManager!) {
+    @objc public func adsManagerDidRequestContentPause(_ adsManager: IMAAdsManager) {
         self.stateMachine.set(state: .adsPlaying)
         self.notify(event: AdEvent.AdDidRequestContentPause())
     }
     
-    @objc public func adsManagerDidRequestContentResume(_ adsManager: IMAAdsManager!) {
+    @objc public func adsManagerDidRequestContentResume(_ adsManager: IMAAdsManager) {
         self.stateMachine.set(state: .contentPlaying)
         self.notify(event: AdEvent.AdDidRequestContentResume())
     }
     
-    @objc public func adsManager(_ adsManager: IMAAdsManager!, adDidProgressToTime mediaTime: TimeInterval, totalTime: TimeInterval) {
+    @objc public func adsManager(_ adsManager: IMAAdsManager, adDidProgressToTime mediaTime: TimeInterval, totalTime: TimeInterval) {
         self.notify(event: AdEvent.AdDidProgressToTime(mediaTime: mediaTime, totalTime: totalTime))
     }
     
@@ -639,10 +653,13 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
         return false
     }
     
-    private func shouldDiscard(ad: IMAAd, currentState: IMAState) -> Bool {
+    private func shouldDiscard(ad: IMAAd?, currentState: IMAState) -> Bool {
+        guard let ad = ad else { return false }
+        
         let adInfo = PKAdInfo(ad: ad,
                               podCount: adsManager?.adCuePoints.count,
                               adPlayHead: .nan)
+        
         let isPreRollInvalid = adInfo.positionType == .preRoll && (currentState == .adsRequestTimedOut || currentState == .contentPlaying)
         if isPreRollInvalid {
             return true
@@ -651,6 +668,7 @@ enum IMAState: Int, StateProtocol, CustomStringConvertible {
         if adInfo.positionType == .preRoll && !startWithPreroll && renderingSettings.playAdsAfterTime > 0 {
             return true
         }
+        
         return false
     }
     

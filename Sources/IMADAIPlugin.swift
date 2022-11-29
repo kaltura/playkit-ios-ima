@@ -196,7 +196,10 @@ import PlayKitUtils
             throw IMADAIPluginRequestError.missingPlayerView
         }
         
-        adDisplayContainer = IMADAIPlugin.createAdDisplayContainer(forView: playerView, viewController: playerView.findViewController(), withCompanionView: pluginConfig.companionView)
+        let displayContainer = IMADAIPlugin.createAdDisplayContainer(forView: playerView,
+                                                                     viewController: playerView.findViewController(),
+                                                                     withCompanionView: pluginConfig.companionView)
+        adDisplayContainer = displayContainer
         
         self.adDisplayContainer?.unregisterAllFriendlyObstructions()
         if let videoControlsOverlays = pluginConfig.videoControlsOverlays {
@@ -215,21 +218,21 @@ import PlayKitUtils
             guard let assetKey = pluginConfig.assetKey else { throw IMADAIPluginRequestError.missingLiveData }
             
             request = IMALiveStreamRequest(assetKey: assetKey,
-                                           adDisplayContainer: adDisplayContainer,
-                                           videoDisplay: videoDisplay)
+                                           adDisplayContainer: displayContainer,
+                                           videoDisplay: imaPlayerVideoDisplay)
         case .vod:
             guard let contentSourceId = pluginConfig.contentSourceId, let videoId = pluginConfig.videoId else { throw IMADAIPluginRequestError.missingVODData }
             
             request = IMAVODStreamRequest(contentSourceID: contentSourceId,
                                           videoID: videoId,
-                                          adDisplayContainer: adDisplayContainer,
-                                          videoDisplay: videoDisplay)
+                                          adDisplayContainer: displayContainer,
+                                          videoDisplay: imaPlayerVideoDisplay)
         }
         
         request.apiKey = pluginConfig.apiKey
         
         if let adTagParameters = pluginConfig.adTagParams {
-            request.adTagParameters.merge(adTagParameters) { _, new in new }
+            request.adTagParameters?.merge(adTagParameters) { _, new in new }
         }
         
         if let monitorID = pluginConfig.streamActivityMonitorId {
@@ -392,7 +395,7 @@ import PlayKitUtils
     // MARK: - IMAAdsLoaderDelegate
     /************************************************************/
     
-    public func adsLoader(_ loader: IMAAdsLoader!, adsLoadedWith adsLoadedData: IMAAdsLoadedData!) {
+    public func adsLoader(_ loader: IMAAdsLoader, adsLoadedWith adsLoadedData: IMAAdsLoadedData) {
         switch stateMachine.getState() {
         case .adsRequested:
             stateMachine.set(state: .adsLoaded)
@@ -404,25 +407,22 @@ import PlayKitUtils
         
         invalidateRequestTimer()
         streamManager = adsLoadedData.streamManager
-        adsLoadedData.streamManager.delegate = self
+        adsLoadedData.streamManager?.delegate = self
         
         createRenderingSettings()
         
         streamManager?.initialize(with: renderingSettings)
     }
     
-    public func adsLoader(_ loader: IMAAdsLoader!, failedWith adErrorData: IMAAdLoadingErrorData!) {
+    public func adsLoader(_ loader: IMAAdsLoader, failedWith adErrorData: IMAAdLoadingErrorData) {
         // Cancel the request timer
         invalidateRequestTimer()
         stateMachine.set(state: .adsRequestFailed)
         
-        guard let adError = adErrorData.adError else {
-            PKLog.error("AdsLoader faild with error.")
-            return
-        }
-        let adErrorMessage: String = adError.message == nil ? "" : adError.message
+        let adErrorMessage: String = adErrorData.adError.message ?? ""
+        
         PKLog.error(adErrorMessage)
-        messageBus?.post(AdEvent.Error(nsError: IMAPluginError(adError: adError).asNSError))
+        messageBus?.post(AdEvent.Error(nsError: IMAPluginError(adError: adErrorData.adError).asNSError))
         delegate?.adsPlugin(self, loaderFailedWith: adErrorMessage)
     }
     
@@ -430,7 +430,7 @@ import PlayKitUtils
     // MARK: - IMAStreamManagerDelegate
     /************************************************************/
     
-    public func streamManager(_ streamManager: IMAStreamManager!, didReceive event: IMAAdEvent!) {
+    public func streamManager(_ streamManager: IMAStreamManager, didReceive event: IMAAdEvent) {
         PKLog.trace("Stream manager event: " + event.typeString)
         
         switch event.type {
@@ -455,15 +455,25 @@ import PlayKitUtils
                 }
             }
         case .LOADED:
-            let adEvent = event.ad != nil ? AdEvent.AdLoaded(adInfo: PKAdInfo(ad: event.ad,
-                                                                              podCount: nil,
-                                                                              adPlayHead: .nan)) : AdEvent.AdLoaded()
+            var adEvent = AdEvent.AdLoaded()
+            
+            if let ad = event.ad {
+                adEvent = AdEvent.AdLoaded(adInfo: PKAdInfo(ad: ad,
+                                                            podCount: nil,
+                                                            adPlayHead: .nan))
+            }
+            
             self.notify(event: adEvent)
         case .STARTED:
-            let event = event.ad != nil ? AdEvent.AdStarted(adInfo: PKAdInfo(ad: event.ad,
-                                                                             podCount: nil,
-                                                                             adPlayHead: .nan)) : AdEvent.AdStarted()
-            self.notify(event: event)
+            var adEvent = AdEvent.AdStarted()
+            
+            if let ad = event.ad {
+                adEvent = AdEvent.AdStarted(adInfo: PKAdInfo(ad: ad,
+                                                             podCount: nil,
+                                                             adPlayHead: .nan))
+            }
+            
+            self.notify(event: adEvent)
         case .FIRST_QUARTILE:
             self.notify(event: AdEvent.AdFirstQuartile())
         case .MIDPOINT:
@@ -471,23 +481,34 @@ import PlayKitUtils
         case .THIRD_QUARTILE:
             self.notify(event: AdEvent.AdThirdQuartile())
         case .PAUSE:
-            let adEvent = event.ad != nil ? AdEvent.AdPaused(adInfo: PKAdInfo(ad: event.ad,
-                                                                              podCount: nil,
-                                                                              adPlayHead: .nan)) : AdEvent.AdPaused()
-            self.notify(event: adEvent)
+            var adEvent = AdEvent.AdPaused()
             
-        case .RESUME:
-            let adEvent = event.ad != nil ? AdEvent.AdResumed(adInfo: PKAdInfo(ad: event.ad,
-                                                                              podCount: nil,
-                                                                              adPlayHead: .nan)) : AdEvent.AdResumed()
-            self.notify(event: adEvent)
-            
-        case .CLICKED:
-            if let clickThroughUrl = event.ad.value(forKey: "clickThroughUrl") as? String {
-                self.notify(event: AdEvent.AdClicked(clickThroughUrl: clickThroughUrl))
-            } else {
-                self.notify(event: AdEvent.AdClicked())
+            if let ad = event.ad {
+                adEvent = AdEvent.AdPaused(adInfo: PKAdInfo(ad: ad,
+                                                            podCount: nil,
+                                                            adPlayHead: .nan))
             }
+            
+            self.notify(event: adEvent)
+        case .RESUME:
+            var adEvent = AdEvent.AdResumed()
+            
+            if let ad = event.ad {
+                adEvent = AdEvent.AdResumed(adInfo: PKAdInfo(ad: ad,
+                                                             podCount: nil,
+                                                             adPlayHead: .nan))
+            }
+            
+            self.notify(event: adEvent)
+        case .CLICKED:
+            var adEvent = AdEvent.AdClicked()
+            
+            if let ad = event.ad,
+               let clickThroughUrl = ad.value(forKey: "clickThroughUrl") as? String {
+                adEvent = AdEvent.AdClicked(clickThroughUrl: clickThroughUrl)
+            }
+            
+            self.notify(event: adEvent)
         case .TAPPED:
             self.notify(event: AdEvent.AdTapped())
         case .SKIPPED:
@@ -509,13 +530,13 @@ import PlayKitUtils
         }
     }
     
-    public func streamManager(_ streamManager: IMAStreamManager!, didReceive error: IMAAdError!) {
+    public func streamManager(_ streamManager: IMAStreamManager, didReceive error: IMAAdError) {
         PKLog.error(error.message)
         self.messageBus?.post(AdEvent.Error(nsError: IMAPluginError(adError: error).asNSError))
-        self.delegate?.adsPlugin(self, managerFailedWith: error.message)
+        self.delegate?.adsPlugin(self, managerFailedWith: error.message ?? "")
     }
     
-    public func streamManager(_ streamManager: IMAStreamManager!,
+    public func streamManager(_ streamManager: IMAStreamManager,
                               adDidProgressToTime time: TimeInterval,
                               adDuration: TimeInterval,
                               adPosition: Int,
