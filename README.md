@@ -1,3 +1,9 @@
+![Swift 3.0+](https://img.shields.io/badge/Swift-3.0+-orange.svg)
+[![CI Status](https://github.com/kaltura/playkit-ios-ima/actions/workflows/ci.yml/badge.svg)](https://github.com/kaltura/playkit-ios-ima/actions/workflows/ci.yml)
+[![Version](https://img.shields.io/cocoapods/v/PlayKit_IMA.svg?style=flat)](https://cocoapods.org/pods/PlayKit_IMA)
+[![License](https://img.shields.io/cocoapods/l/PlayKit_IMA.svg?style=flat)](https://cocoapods.org/pods/PlayKit_IMA)
+[![Platform](https://img.shields.io/cocoapods/p/PlayKit_IMA.svg?style=flat)](https://cocoapods.org/pods/PlayKit_IMA)
+
 # PlayKit IMA Plugin
 
 ## Example
