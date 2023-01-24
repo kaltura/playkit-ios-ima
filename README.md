@@ -32,7 +32,7 @@ community@kaltura.com
 ## Requirements
 
 * Xcode 11 or newer
-* iOS/tvOS 11.0+
+* iOS/tvOS 12.0+
 * CocoaPods
 
 ## Installation Instructions
