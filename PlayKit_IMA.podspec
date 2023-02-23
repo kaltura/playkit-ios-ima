@@ -23,7 +23,7 @@ Pod::Spec.new do |s|
   s.ios.dependency 'GoogleAds-IMA-iOS-SDK', '3.18.1'
   s.tvos.dependency 'GoogleAds-IMA-tvOS-SDK', '4.6.1'
 
-  s.xcconfig = {
+  s.tvos.xcconfig = {
 ### The following is required for Xcode 12 (https://stackoverflow.com/questions/63607158/xcode-12-building-for-ios-simulator-but-linking-in-object-file-built-for-ios)
     'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64',
     'EXCLUDED_ARCHS[sdk=appletvsimulator*]' => 'arm64'
