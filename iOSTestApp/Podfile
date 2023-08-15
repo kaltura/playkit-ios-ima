@@ -18,3 +18,14 @@ target 'iOSTestApp' do
   end
 
 end
+
+# Needed from Xcode 14, supports from iOS 11, need to update pods with lowest supported value.
+post_install do |installer|
+  installer.generated_projects.each do |project|
+    project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
+       end
+    end
+  end
+end
