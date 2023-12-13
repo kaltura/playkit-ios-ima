@@ -219,14 +219,14 @@ import PlayKitUtils
             
             request = IMALiveStreamRequest(assetKey: assetKey,
                                            adDisplayContainer: displayContainer,
-                                           videoDisplay: imaPlayerVideoDisplay)
+                                           videoDisplay: imaPlayerVideoDisplay, userContext: nil)
         case .vod:
             guard let contentSourceId = pluginConfig.contentSourceId, let videoId = pluginConfig.videoId else { throw IMADAIPluginRequestError.missingVODData }
             
             request = IMAVODStreamRequest(contentSourceID: contentSourceId,
                                           videoID: videoId,
                                           adDisplayContainer: displayContainer,
-                                          videoDisplay: imaPlayerVideoDisplay)
+                                          videoDisplay: imaPlayerVideoDisplay, userContext: nil)
         }
         
         request.apiKey = pluginConfig.apiKey
